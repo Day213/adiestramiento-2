@@ -39,20 +39,19 @@ export const PaginatedTable = ({ data, renderRow, columns, rowsPerPage = 10, pag
       <table className="bg-white p-2 rounded-lg min-w-full text-center">
         <thead>
           <tr className="text-slate-800">
-            {columns.map(col => (
-              <th
-                key={col.key}
-                className="px-4 py-2 border-slate-300 border-b cursor-pointer select-none"
-                onClick={() =>
-                  sortableKeys.includes(col.key)
-                    ? handleSort(col.key, setCurrentPage)
-                    : undefined
-                }
-              >
-                {col.label}
-                {(col.key === 'cantidad_asistente' || col.key === 'fecha_aproximada') && sortArrow(col.key)}
-              </th>
-            ))}
+            {columns.map(col => {
+              const isSortable = sortableKeys.includes(col.key);
+              return (
+                <th
+                  key={col.key}
+                  className={`px-4 py-2 border-slate-300 border-b select-none ${isSortable ? 'cursor-pointer hover:text-blue-600' : ''}`}
+                  onClick={isSortable ? () => handleSort(col.key, setCurrentPage) : undefined}
+                >
+                  {col.label}
+                  {isSortable && sortArrow(col.key)}
+                </th>
+              )
+            })}
           </tr>
         </thead>
         <tbody>
