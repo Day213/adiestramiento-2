@@ -64,9 +64,6 @@ export const ResponderSolicitud = () => {
       setSending(false)
     }, 1000)
   }
-
-  console.log(sending)
-
   return (
     <Layout>
       <div className="flex flex-col justify-center items-center h-[85vh]">

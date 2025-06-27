@@ -95,7 +95,7 @@ export const EnviarSolicitud = () => {
               <input id="tema" className="p-2 border border-gray-300 rounded w-full" value={form.tema} onChange={handleChange} required />
             </div>
             <div className="flex gap-6 mt-4">
-              <button type="submit" className="bg-blue-600 py-3 rounded-md w-full font-bold text-white text-sm uppercase" disabled={loading}>{loading ? 'Enviando...' : 'Enviar solicitud'}</button>
+              <button type="submit" className="bg-blue-600 disabled:bg-slate-600 py-3 rounded-md w-full font-bold text-white text-sm uppercase" disabled={loading}>{loading ? 'Enviando...' : 'Enviar solicitud'}</button>
             </div>
             {mensaje && <div className="mt-4 font-bold text-green-600 text-center">{mensaje}</div>}
           </div>
