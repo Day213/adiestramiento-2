@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { Layout } from '../components/layout'
 import { supabase } from '../supabase'
 
@@ -14,12 +14,32 @@ export const EnviarSolicitud = () => {
     tema: ''
   })
   const [mensaje, setMensaje] = useState('')
+  // Captcha simple
+  const [captcha, setCaptcha] = useState({
+    num1: Math.floor(Math.random() * 10),
+    num2: Math.floor(Math.random() * 10),
+    respuesta: ''
+  })
+  const [captchaError, setCaptchaError] = useState('')
+  const captchaInputRef = useRef(null)
 
   const handleChange = (e) => {
     const { id, value } = e.target
     setForm(prev => ({ ...prev, [id]: value }))
   }
+
+  const handleCaptchaChange = (e) => {
+    setCaptcha(prev => ({ ...prev, respuesta: e.target.value }))
+  }
   async function handleSubmit() {
+    setCaptchaError('')
+    // Validar captcha
+    if (parseInt(captcha.respuesta) !== captcha.num1 + captcha.num2) {
+      setCaptchaError('Respuesta incorrecta, intenta de nuevo.')
+      setCaptcha(prev => ({ ...prev, respuesta: '' }))
+      if (captchaInputRef.current) captchaInputRef.current.focus()
+      return
+    }
     setLoading(true)
     setMensaje('')
     const newData = { ...form, telefono: parseInt(form.telefono), cantidadAsistentes: parseInt(form.cantidadAsistentes) }
@@ -47,6 +67,12 @@ export const EnviarSolicitud = () => {
         correo: '',
         fecha: '',
         tema: ''
+      })
+      // Nuevo captcha tras envío exitoso
+      setCaptcha({
+        num1: Math.floor(Math.random() * 10),
+        num2: Math.floor(Math.random() * 10),
+        respuesta: ''
       })
     }
     setLoading(false)
@@ -93,6 +119,21 @@ export const EnviarSolicitud = () => {
             <div className="flex flex-col gap-4 mt-4">
               <label htmlFor="tema" className="-mb-2 font-bold text-slate-500 text-xs uppercase">Tema</label>
               <input id="tema" className="p-2 border border-gray-300 rounded w-full" value={form.tema} onChange={handleChange} required />
+            </div>
+            {/* Captcha simple */}
+            <div className="flex flex-col gap-2 mt-4">
+              <label className="font-bold text-slate-500 text-xs uppercase">Captcha: ¿Cuánto es {captcha.num1} + {captcha.num2}?</label>
+              <input
+                type="number"
+                className="p-2 border border-gray-300 rounded w-full"
+                value={captcha.respuesta}
+                onChange={handleCaptchaChange}
+                ref={captchaInputRef}
+                required
+                min="0"
+                placeholder="Respuesta"
+              />
+              {captchaError && <span className="text-red-600 text-xs font-bold">{captchaError}</span>}
             </div>
             <div className="flex gap-6 mt-4">
               <button type="submit" className="bg-blue-600 disabled:bg-slate-600 py-3 rounded-md w-full font-bold text-white text-sm uppercase" disabled={loading}>{loading ? 'Enviando...' : 'Enviar solicitud'}</button>
