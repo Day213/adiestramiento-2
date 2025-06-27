@@ -44,7 +44,7 @@ export const PaginatedTable = ({ data, renderRow, columns, rowsPerPage = 10, pag
               return (
                 <th
                   key={col.key}
-                  className={`px-4 py-2 border-slate-300 border-b select-none ${isSortable ? 'cursor-pointer hover:text-blue-600' : ''}`}
+                  className={`px-4 py-2 border-slate-300 border-b select-none text-nowrap ${isSortable ? 'cursor-pointer hover:text-blue-600' : ''}`}
                   onClick={isSortable ? () => handleSort(col.key, setCurrentPage) : undefined}
                 >
                   {col.label}
