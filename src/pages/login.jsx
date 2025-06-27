@@ -14,7 +14,7 @@ export const Login = () => {
   async function handleSubmit() {
     setLoading(true)
     setError("")
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password
     })
@@ -25,12 +25,11 @@ export const Login = () => {
     }
     setLoading(false)
   }
-  // const token = JSON.parse(localStorage.getItem('sb-rokbtsjbkbckzpcwiemi-auth-token'))
   return (
     <Layout>
-      <div className="flex justify-center items-center h-[85vh]">
+      <div className="flex flex-col justify-center items-center gap-6 h-[85vh]">
+        <h2 className="mb-6 font-bold text-blue-600 text-2xl text-center uppercase">Iniciar Sesión</h2>
         <div className="bg-white shadow-md p-8 rounded w-96">
-          <h2 className="mb-6 font-bold text-blue-600 text-2xl text-center uppercase">Iniciar Sesión</h2>
           <form onSubmit={(e) => { e.preventDefault(); handleSubmit() }}>
             <div className="mb-4">
               <label
@@ -39,6 +38,7 @@ export const Login = () => {
               <input
                 type="email"
                 value={email}
+                placeholder="tucorreo@correo.com"
                 id="email"
                 onChange={(e) => setEmail(e.target.value)}
                 className="p-2 border border-gray-300 rounded w-full"

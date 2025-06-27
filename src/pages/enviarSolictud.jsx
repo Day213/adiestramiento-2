@@ -19,26 +19,24 @@ export const EnviarSolicitud = () => {
     const { id, value } = e.target
     setForm(prev => ({ ...prev, [id]: value }))
   }
-
   async function handleSubmit() {
     setLoading(true)
     setMensaje('')
-    // Enviar datos a la tabla "solicitudes" en Supabase
-
-
-    const { data, error } = await supabase.from('solicitudes').insert([
+    const newData = { ...form, telefono: parseInt(form.telefono), cantidadAsistentes: parseInt(form.cantidadAsistentes) }
+    const { error } = await supabase.from('solicitudes').insert([
       {
-        tipo_solicitud: form.tipoSolicitud,
-        cantidad_asistentes: form.cantidadAsistentes,
-        nombre_solicitante: form.nombreSolicitante,
-        telefono: form.telefono,
-        correo: form.correo,
-        fecha: form.fecha,
-        tema: form.tema
+        tipo_solicitud: newData.tipoSolicitud,
+        nombre_solicitante: newData.nombreSolicitante,
+        cantidad_asistente: newData.cantidadAsistentes,
+        fecha_aproximada: newData.fecha,
+        tema_solicitante: newData.tema,
+        telefono: newData.telefono,
+        correo: newData.correo,
       }
     ])
     if (error) {
       setMensaje('Error al enviar la solicitud. Intenta nuevamente.')
+      console.error(error)
     } else {
       setMensaje('¡Solicitud enviada correctamente!')
       setForm({
@@ -56,10 +54,10 @@ export const EnviarSolicitud = () => {
 
   return (
     <Layout>
-      <div className="flex justify-center items-center h-[85vh]">
+      <div className="flex flex-col justify-center items-center gap-6 h-[85vh]">
+        <h2 className="font-bold text-blue-700 text-2xl text-center uppercase">Gestion de solicitud</h2>
         <form onSubmit={(e) => { e.preventDefault(); handleSubmit() }}>
           <div className="bg-white shadow-xl p-6 border border-slate-200 rounded-lg w-full max-w-md">
-            <h2 className="font-bold text-blue-700 text-2xl text-center uppercase">Gestion de solicitud</h2>
             <div className="flex gap-4">
               <div className="flex flex-col gap-4 mt-6 w-1/2">
                 <label htmlFor="tipoSolicitud" className="-mb-2 font-bold text-slate-500 text-xs uppercase">Tipo de solicitud</label>
