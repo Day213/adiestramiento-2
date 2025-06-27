@@ -17,7 +17,7 @@ export const PaginatedTable = ({ data, renderRow, columns, rowsPerPage = 10, pag
   const totalPages = Math.ceil(data.length / rowsPerPage)
 
   // Lógica de ordenamiento delegada al hook
-  const sortableKeys = ['cantidad_asistente', 'fecha_aproximada']
+  const sortableKeys = ['cantidad_asistente', 'fecha_aproximada', 'tipo_solicitud']
   const { sortedData, sortConfig, handleSort } = useSortableData(data, sortableKeys)
 
   const startIdx = (currentPage - 1) * rowsPerPage
@@ -40,7 +40,7 @@ export const PaginatedTable = ({ data, renderRow, columns, rowsPerPage = 10, pag
         <thead>
           <tr className="text-slate-800">
             {columns.map(col => {
-              const isSortable = sortableKeys.includes(col.key);
+              const isSortable = sortableKeys.includes(col.key)
               return (
                 <th
                   key={col.key}

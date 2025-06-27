@@ -28,79 +28,95 @@ export const ListarSolicitud = () => {
     fetchSolicitudes()
   }, [])
 
-  // Ahora las solicitudes activas son las que tienen status true y las respondidas las que tienen status false
+  console.log(solicitudes)
+
   const solicitudesActivas = solicitudes.filter(s => s.status === true)
   const solicitudesRespondidas = solicitudes.filter(s => s.status === false)
-
-  // Columnas para la tabla paginada
   const columns = [
     { label: 'Solicitud', key: 'tipo_solicitud' },
     { label: 'Solicitante', key: 'nombre_solicitante' },
     { label: 'N° asistentes', key: 'cantidad_asistente' },
-    { label: 'Fecha', key: 'fecha_aproximada' },
+    { label: 'Fecha aproximada', key: 'fecha_aproximada' },
     { label: 'Tema', key: 'tema_solicitante' },
     { label: 'Telefono', key: 'telefono' },
     { label: 'Correo', key: 'correo' },
+    { label: 'Fecha creación', key: 'created_at' },
     { label: 'Respuesta', key: 'respuesta' },
   ]
 
-  // Renderiza una fila de la tabla
-  const renderRow = (item) => (
-    <tr key={item.id} className="text-slate-500">
-      <td className="px-4 py-2 border-slate-300 border-b">
-        <span className={`${item.tipo_solicitud === 'taller' ? 'bg-blue-800' : 'bg-amber-400 text-black!'} p-1 rounded-md text-[10px] text-white uppercase`}>
-          {item.tipo_solicitud}
-        </span>
-      </td>
-      <td className="px-4 py-2 border-slate-300 border-b font-bold text-slate-600 text-left text-nowrap">
-        {item.nombre_solicitante}
-      </td>
-      <td className="px-4 py-2 border-slate-300 border-b">
-        <div className="flex justify-center items-center">
-          <div className="flex justify-center items-center bg-slate-400 rounded-full w-6 h-5 text-white">
-            <span className="font-bold text-[10px]">{item.cantidad_asistente}</span>
+  const renderRow = (item) => {
+    const fechaCorta = item.created_at
+      ? new Date(item.created_at).toISOString().slice(0, 10)
+      : ''
+
+    // Verificar si hay más de una solicitud con la misma fecha_aproximada
+    const fechaIgual = solicitudes.filter(s => s.fecha_aproximada === item.fecha_aproximada).length > 1
+    return (
+      <tr key={item.id} className="text-slate-500">
+        <td className="px-4 py-2 border-slate-300 border-b">
+          <span className={`${item.tipo_solicitud === 'taller' ? 'bg-blue-800' : 'bg-amber-400 text-black!'} p-1 rounded-md text-[10px] text-white uppercase`}>
+            {item.tipo_solicitud}
+          </span>
+        </td>
+        <td className="px-4 py-2 border-slate-300 border-b font-bold text-slate-600 text-left text-nowrap">
+          {item.nombre_solicitante}
+        </td>
+        <td className="px-4 py-2 border-slate-300 border-b">
+          <div className="flex justify-center items-center">
+            <div className="flex justify-center items-center bg-slate-400 rounded-full w-6 h-5 text-white">
+              <span className="font-bold text-[10px]">{item.cantidad_asistente}</span>
+            </div>
           </div>
-        </div>
-      </td>
-      <td className="px-4 py-2 border-slate-300 border-b">
-        <div className="flex justify-center items-center">
-          <div className="flex justify-center items-center bg-slate-300 rounded-full text-white">
-            <span className="p-1 px-2 font-bold text-[10px] text-slate-600 text-nowrap">{item.fecha_aproximada}</span>
+        </td>
+        <td className="px-4 py-2 border-slate-300 border-b">
+          <div className="flex justify-center items-center">
+            <div className={`flex justify-center items-center rounded-full text-white ${fechaIgual ? 'bg-amber-400' : 'bg-slate-300'}`}>
+              <span className={`p-1 px-2 font-bold text-[10px] text-slate-600 text-nowrap ${fechaIgual ? 'text-black' : ''}`}>{item.fecha_aproximada}</span>
+            </div>
           </div>
-        </div>
-      </td>
-      <td className="px-4 py-2 border-slate-300 border-b text-xs">
-        <span className="h-[20px] line-clamp-1">{item.tema_solicitante}</span>
-      </td>
-      <td className="px-4 py-2 border-slate-300 border-b">
-        <div className="flex justify-center items-center">
-          <div className="flex justify-center items-center bg-slate-300 rounded-full text-white">
-            <span className="p-1 px-2 font-bold text-[10px] text-slate-600">
-              {item.telefono}
-            </span>
+        </td>
+        <td className="px-4 py-2 border-slate-300 border-b text-xs">
+          <span className="h-[20px] line-clamp-1">{item.tema_solicitante}</span>
+        </td>
+        <td className="px-4 py-2 border-slate-300 border-b">
+          <div className="flex justify-center items-center">
+            <div className="flex justify-center items-center bg-slate-300 rounded-full text-white">
+              <span className="p-1 px-2 font-bold text-[10px] text-slate-600">
+                {item.telefono}
+              </span>
+            </div>
           </div>
-        </div>
-      </td>
-      <td className="px-4 py-2 border-slate-300 border-b">
-        <div className="flex justify-center items-center">
-          <div className="flex justify-center items-center bg-slate-300 rounded-full text-white">
-            <span className="p-1 px-2 font-bold text-[10px] text-slate-600">
-              {item.correo}
-            </span>
+        </td>
+        <td className="px-4 py-2 border-slate-300 border-b">
+          <div className="flex justify-center items-center">
+            <div className="flex justify-center items-center bg-slate-300 rounded-full text-white">
+              <span className="p-1 px-2 font-bold text-[10px] text-slate-600">
+                {item.correo}
+              </span>
+            </div>
           </div>
-        </div>
-      </td>
-      <td className="px-4 py-2 border-slate-300 border-b">
-        <div className="flex justify-center items-center">
-          <Link to={`/responder-solicitudes/${item.id}`}>
-            <button className="bg-slate-400 hover:bg-slate-700 p-1 px-3 rounded-md text-white transition-colors duration-200">
-              <Mail />
-            </button>
-          </Link>
-        </div>
-      </td>
-    </tr>
-  )
+        </td>
+        <td className="px-4 py-2 border-slate-300 border-b">
+          <div className="flex justify-center items-center">
+            <div className="flex justify-center items-center bg-slate-300 rounded-full text-white">
+              <span className="p-1 px-2 font-bold text-[10px] text-slate-600">
+                {fechaCorta}
+              </span>
+            </div>
+          </div>
+        </td>
+        <td className="px-4 py-2 border-slate-300 border-b">
+          <div className="flex justify-center items-center">
+            <Link to={`/responder-solicitudes/${item.id}`}>
+              <button className="bg-slate-400 hover:bg-slate-700 p-1 px-3 rounded-md text-white transition-colors duration-200">
+                <Mail />
+              </button>
+            </Link>
+          </div>
+        </td>
+      </tr>
+    )
+  }
 
   return (
     <Layout>
