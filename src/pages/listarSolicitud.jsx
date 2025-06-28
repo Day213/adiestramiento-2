@@ -28,8 +28,6 @@ export const ListarSolicitud = () => {
     fetchSolicitudes()
   }, [])
 
-  console.log(solicitudes)
-
   const solicitudesActivas = solicitudes.filter(s => s.status === true)
   const solicitudesRespondidas = solicitudes.filter(s => s.status === false)
   const columns = [
