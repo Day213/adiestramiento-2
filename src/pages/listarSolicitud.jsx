@@ -14,7 +14,6 @@ import { PaginatedTable } from '../components/PaginatedTable'
 export const ListarSolicitud = () => {
   const [solicitudes, setSolicitudes] = useState([])
   const [loading, setLoading] = useState(true)
-  // Estados de página independientes para cada tabla
   const [pagePendientes, setPagePendientes] = useState(1)
   const [pageRespondidas, setPageRespondidas] = useState(1)
 
@@ -47,7 +46,6 @@ export const ListarSolicitud = () => {
       ? new Date(item.created_at).toISOString().slice(0, 10)
       : ''
 
-    // Verificar si hay más de una solicitud con la misma fecha_aproximada
     const fechaIgual = solicitudes.filter(s => s.fecha_aproximada === item.fecha_aproximada).length > 1
     return (
       <tr key={item.id} className="text-slate-500">
