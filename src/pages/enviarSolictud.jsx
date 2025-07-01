@@ -1,9 +1,11 @@
 import React, { useState, useRef } from 'react'
 import { Layout } from '../components/layout'
 import { supabase } from '../supabase'
+import { sendEmailSolicitud } from '../sendEmail'
 
 export const EnviarSolicitud = () => {
   const [loading, setLoading] = useState(false)
+  const email = 'paolaarevalo147@gmail.com'
   const [form, setForm] = useState({
     tipoSolicitud: '',
     cantidadAsistentes: '',
@@ -14,7 +16,6 @@ export const EnviarSolicitud = () => {
     tema: ''
   })
   const [mensaje, setMensaje] = useState('')
-  // Captcha simple
   const [captcha, setCaptcha] = useState({
     num1: Math.floor(Math.random() * 10),
     num2: Math.floor(Math.random() * 10),
@@ -43,37 +44,58 @@ export const EnviarSolicitud = () => {
     setLoading(true)
     setMensaje('')
     const newData = { ...form, telefono: parseInt(form.telefono), cantidadAsistentes: parseInt(form.cantidadAsistentes) }
-    const { error } = await supabase.from('solicitudes').insert([
-      {
-        tipo_solicitud: newData.tipoSolicitud,
-        nombre_solicitante: newData.nombreSolicitante,
-        cantidad_asistente: newData.cantidadAsistentes,
-        fecha_aproximada: newData.fecha,
-        tema_solicitante: newData.tema,
-        telefono: newData.telefono,
-        correo: newData.correo,
+    // Construir el mensaje con todos los campos
+    const message = `Nueva solicitud recibida:\n\n` +
+      `Tipo de solicitud: ${newData.tipoSolicitud}\n` +
+      `Cantidad de asistentes: ${newData.cantidadAsistentes}\n` +
+      `Nombre del solicitante: ${newData.nombreSolicitante}\n` +
+      `Teléfono: ${newData.telefono}\n` +
+      `Correo: ${newData.correo}\n` +
+      `Fecha aproximada: ${newData.fecha}\n` +
+      `Tema: ${newData.tema}`
+    try {
+      // Enviar correo
+      await sendEmailSolicitud({
+        to_email: email,
+        subject: `Nueva solicitud de ${newData.nombreSolicitante}`,
+        message
+      })
+      // Guardar en supabase solo si el correo fue exitoso
+      const { error } = await supabase.from('solicitudes').insert([
+        {
+          tipo_solicitud: newData.tipoSolicitud,
+          nombre_solicitante: newData.nombreSolicitante,
+          cantidad_asistente: newData.cantidadAsistentes,
+          fecha_aproximada: newData.fecha,
+          tema_solicitante: newData.tema,
+          telefono: newData.telefono,
+          correo: newData.correo,
+        }
+      ])
+      if (error) {
+        setMensaje('Error al guardar la solicitud. Intenta nuevamente.')
+        console.error(error)
+      } else {
+        setMensaje('¡Solicitud enviada correctamente!')
+        setForm({
+          tipoSolicitud: '',
+          cantidadAsistentes: '',
+          nombreSolicitante: '',
+          telefono: '',
+          correo: '',
+          fecha: '',
+          tema: ''
+        })
+        // Nuevo captcha tras envío exitoso
+        setCaptcha({
+          num1: Math.floor(Math.random() * 10),
+          num2: Math.floor(Math.random() * 10),
+          respuesta: ''
+        })
       }
-    ])
-    if (error) {
-      setMensaje('Error al enviar la solicitud. Intenta nuevamente.')
-      console.error(error)
-    } else {
-      setMensaje('¡Solicitud enviada correctamente!')
-      setForm({
-        tipoSolicitud: '',
-        cantidadAsistentes: '',
-        nombreSolicitante: '',
-        telefono: '',
-        correo: '',
-        fecha: '',
-        tema: ''
-      })
-      // Nuevo captcha tras envío exitoso
-      setCaptcha({
-        num1: Math.floor(Math.random() * 10),
-        num2: Math.floor(Math.random() * 10),
-        respuesta: ''
-      })
+    } catch (err) {
+      setMensaje('Error al enviar el correo. Intenta nuevamente.')
+      console.error(err)
     }
     setLoading(false)
   }
@@ -133,7 +155,7 @@ export const EnviarSolicitud = () => {
                 min="0"
                 placeholder="Respuesta"
               />
-              {captchaError && <span className="text-red-600 text-xs font-bold">{captchaError}</span>}
+              {captchaError && <span className="font-bold text-red-600 text-xs">{captchaError}</span>}
             </div>
             <div className="flex gap-6 mt-4">
               <button type="submit" className="bg-blue-600 disabled:bg-slate-600 py-3 rounded-md w-full font-bold text-white text-sm uppercase" disabled={loading}>{loading ? 'Enviando...' : 'Enviar solicitud'}</button>
