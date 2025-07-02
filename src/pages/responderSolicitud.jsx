@@ -1,6 +1,6 @@
 
 import React, { useRef } from 'react'
-import emailjs from '@emailjs/browser'
+import { sendEmailSolicitud } from '../sendEmail'
 import { Layout } from '../components/layout'
 import { Link, useParams } from 'react-router-dom'
 import { supabase } from '../supabase'
@@ -44,25 +44,20 @@ export const ResponderSolicitud = () => {
 
   const form = useRef()
 
-  const sendEmail = (e) => {
+  const sendEmail = async (e) => {
     setSending(true)
     e.preventDefault()
-    emailjs
-      .sendForm('service_pme297l', 'template_2rto3c5', form.current, {
-        publicKey: 'Yg8bKBL0r2ENXrQ3Y',
-      })
-      .then(
-        () => {
-          updateStatus()
-        },
-        (error) => {
-          console.log('FAILED...', error.text)
-          setSending(false)
-        },
-      )
-    setTimeout(() => {
-      setSending(false)
-    }, 1000)
+    const formData = new FormData(form.current)
+    const to_email = formData.get('correo')
+    const subject = formData.get('title')
+    const message = formData.get('message')
+    try {
+      await sendEmailSolicitud({ to_email, subject, message })
+      await updateStatus()
+    } catch (error) {
+      console.log('FAILED...', error?.text || error)
+    }
+    setSending(false)
   }
   return (
     <Layout>
