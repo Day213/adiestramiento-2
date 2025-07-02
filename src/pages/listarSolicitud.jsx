@@ -72,7 +72,16 @@ export const ListarSolicitud = () => {
           </div>
         </td>
         <td className="px-4 py-2 border-slate-300 border-b text-xs">
-          <span className="h-[20px] line-clamp-1">{item.tema_solicitante}</span>
+          <span
+            className="group relative h-[20px] line-clamp-1 cursor-pointer"
+            title={item.tema_solicitante}
+          >
+            {item.tema_solicitante}
+            {/* Tooltip personalizado */}
+            <span className="bottom-full left-1/2 z-10 absolute bg-slate-800 opacity-0 group-hover:opacity-100 mb-2 px-2 py-1 rounded w-max max-w-xs text-white text-xs whitespace-pre-line transition-opacity -translate-x-1/2 duration-200 pointer-events-none">
+              {item.tema_solicitante}
+            </span>
+          </span>
         </td>
         <td className="px-4 py-2 border-slate-300 border-b">
           <div className="flex justify-center items-center">
