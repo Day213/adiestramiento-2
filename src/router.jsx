@@ -7,6 +7,7 @@ import { EnviarSolicitud } from "./pages/enviarSolictud"
 import { ListarSolicitud } from "./pages/listarSolicitud"
 import { ResponderSolicitud } from "./pages/responderSolicitud"
 import { supabase } from './supabase'
+import NetlifyEmailForm from "./pages/NetlifyEmailForm"
 
 // Componente para rutas protegidas
 const ProtectedRoute = ({ children }) => {
@@ -54,6 +55,7 @@ export const Router = () => {
   return (
     <Routes>
       <Route path="*" element={<Pagina404 />} />
+      <Route path="/prueba" element={<NetlifyEmailForm />} />
       {/* Rutas públicas solo para no autenticados */}
       <Route path="/login" element={
         <PublicRoute>
