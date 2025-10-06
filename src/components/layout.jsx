@@ -33,20 +33,25 @@ export const Layout = ({ children }) => {
             {!user && (
               <>
                 <li>
-                  <Link to="/" className="font-bold text-slate-400 hover:text-blue-600 transition-all">
+                  <Link to="/" className="font-bold text-slate-400 hover:text-blue-600 uppercase transition-all">
                     Crear solicitud
                   </Link>
                 </li>
                 <li>
-                  <Link to="/login" className="font-bold text-slate-400 hover:text-blue-600 transition-all">
+                  <Link to="/login" className="font-bold text-slate-400 hover:text-blue-600 uppercase transition-all">
                     Iniciar Sesión
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/prueba" className="font-bold text-slate-400 hover:text-blue-600 uppercase transition-all">
+                    prueba
                   </Link>
                 </li>
               </>
             )}
             {user && (
               <li>
-                <button className="bg-red-400 p-2 rounded-md font-bold text-white" onClick={logOut}>
+                <button className="bg-red-400 p-2 rounded-md font-bold text-white uppercase" onClick={logOut}>
                   Cerrar Sesión
                 </button>
               </li>
