@@ -42,11 +42,7 @@ export const Layout = ({ children }) => {
                     Iniciar Sesión
                   </Link>
                 </li>
-                <li>
-                  <Link to="/prueba" className="font-bold text-slate-400 hover:text-blue-600 uppercase transition-all">
-                    prueba
-                  </Link>
-                </li>
+                
               </>
             )}
             {user && (
