@@ -6,13 +6,13 @@ import { sendEmailSolicitud } from '../sendEmail'
 export const EnviarSolicitud = () => {
   const [loading, setLoading] = useState(false)
   const [form, setForm] = useState({
-    tipoSolicitud: 'taller',
-    cantidadAsistentes: '1',
-    nombreSolicitante: 'Freddy',
-    telefono: '0424242424',
-    correo: 'freddyskull11@gmail.com',
-    fecha: '2025-10-08',
-    tema: 'Taller'
+    tipoSolicitud: '',
+    cantidadAsistentes: '',
+    nombreSolicitante: '',
+    telefono: '',
+    correo: '',
+    fecha: '',
+    tema: ''
   })
   const [mensaje, setMensaje] = useState('')
   const [captcha, setCaptcha] = useState({
@@ -44,10 +44,10 @@ export const EnviarSolicitud = () => {
 
     setLoading(true)
     setMensaje('')
-    const newData = { 
-      ...form, 
-      telefono: parseInt(form.telefono), 
-      cantidadAsistentes: parseInt(form.cantidadAsistentes) 
+    const newData = {
+      ...form,
+      telefono: parseInt(form.telefono),
+      cantidadAsistentes: parseInt(form.cantidadAsistentes)
     }
 
     try {
@@ -111,10 +111,10 @@ export const EnviarSolicitud = () => {
   const handleFormSubmit = async (e) => {
     e.preventDefault()
     const success = await handleSubmit()
-    
+
     if (success) {
       try {
-        const response = await fetch('https://formsubmit.co/7147947b08bd30163748271b42e3ba0a', {
+        const response = await fetch('https://formsubmit.co/adiestramientoydesarrollo2024@gmail.com', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -132,17 +132,17 @@ export const EnviarSolicitud = () => {
             '_template': 'table', // Formato de tabla para mejor legibilidad
             '_from': 'Departamento de Adiestramiento <tucorreo@formsubmit.com>' // Personalizar remitente
           })
-        });
-        
+        })
+
         if (!response.ok) {
-          throw new Error('Error al enviar el formulario');
+          throw new Error('Error al enviar el formulario')
         }
-        
+
         // Opcional: Redirigir a una página de éxito si es necesario
         // window.location.href = 'https://tudominio.com/gracias';
-        
+
       } catch (error) {
-        console.error('Error al enviar a FormSubmit:', error);
+        console.error('Error al enviar a FormSubmit:', error)
         // Aquí podrías mostrar un mensaje al usuario si lo deseas
         // setMensaje('Error al enviar el formulario. Por favor intente de nuevo.');
       }
@@ -158,12 +158,12 @@ export const EnviarSolicitud = () => {
             <div className="flex gap-4">
               <div className="flex flex-col gap-4 mt-6 w-1/2">
                 <label htmlFor="tipoSolicitud" className="-mb-2 font-bold text-slate-500 text-xs uppercase">Tipo de solicitud</label>
-                <select 
-                  id="tipoSolicitud" 
-                  name="tipoSolicitud" 
-                  className="p-2 border border-gray-300 rounded w-full" 
-                  value={form.tipoSolicitud} 
-                  onChange={handleChange} 
+                <select
+                  id="tipoSolicitud"
+                  name="tipoSolicitud"
+                  className="p-2 border border-gray-300 rounded w-full"
+                  value={form.tipoSolicitud}
+                  onChange={handleChange}
                   required
                 >
                   <option value="" disabled>Opciones</option>
@@ -173,76 +173,76 @@ export const EnviarSolicitud = () => {
               </div>
               <div className="flex flex-col gap-4 mt-6 w-1/2">
                 <label htmlFor="cantidadAsistentes" className="-mb-2 font-bold text-slate-500 text-xs uppercase">Cantidad de asistentes</label>
-                <input 
-                  id="cantidadAsistentes" 
-                  name="cantidadAsistentes" 
-                  type="number" 
-                  className="p-2 border border-gray-300 rounded w-full" 
-                  value={form.cantidadAsistentes} 
-                  onChange={handleChange} 
-                  required 
-                  min="1" 
+                <input
+                  id="cantidadAsistentes"
+                  name="cantidadAsistentes"
+                  type="number"
+                  className="p-2 border border-gray-300 rounded w-full"
+                  value={form.cantidadAsistentes}
+                  onChange={handleChange}
+                  required
+                  min="1"
                 />
               </div>
             </div>
             <div className="flex flex-col gap-4 mt-6">
               <label htmlFor="nombreSolicitante" className="-mb-2 font-bold text-slate-500 text-xs uppercase">¿Quién lo solicita? <small>(Nombre completo)</small></label>
-              <input 
-                id="nombreSolicitante" 
-                name="nombreSolicitante" 
-                className="p-2 border border-gray-300 rounded w-full" 
-                value={form.nombreSolicitante} 
-                onChange={handleChange} 
-                required 
+              <input
+                id="nombreSolicitante"
+                name="nombreSolicitante"
+                className="p-2 border border-gray-300 rounded w-full"
+                value={form.nombreSolicitante}
+                onChange={handleChange}
+                required
               />
             </div>
             <div className="flex gap-4">
               <div className="flex flex-col gap-4 mt-4 w-1/2">
                 <label htmlFor="telefono" className="-mb-2 font-bold text-slate-500 text-xs uppercase">Teléfono</label>
-                <input 
-                  id="telefono" 
-                  name="telefono" 
-                  type="tel" 
-                  className="p-2 border border-gray-300 rounded w-full" 
-                  value={form.telefono} 
-                  onChange={handleChange} 
-                  required 
+                <input
+                  id="telefono"
+                  name="telefono"
+                  type="tel"
+                  className="p-2 border border-gray-300 rounded w-full"
+                  value={form.telefono}
+                  onChange={handleChange}
+                  required
                 />
               </div>
               <div className="flex flex-col gap-4 mt-4 w-1/2">
                 <label htmlFor="correo" className="-mb-2 font-bold text-slate-500 text-xs uppercase">Correo</label>
-                <input 
-                  id="correo" 
-                  name="correo" 
-                  type="email" 
-                  className="p-2 border border-gray-300 rounded w-full" 
-                  value={form.correo} 
-                  onChange={handleChange} 
-                  required 
+                <input
+                  id="correo"
+                  name="correo"
+                  type="email"
+                  className="p-2 border border-gray-300 rounded w-full"
+                  value={form.correo}
+                  onChange={handleChange}
+                  required
                 />
               </div>
             </div>
             <div className="flex flex-col gap-4 mt-4">
               <label htmlFor="fecha" className="-mb-2 font-bold text-slate-500 text-xs uppercase">Fecha aproximada</label>
-              <input 
-                id="fecha" 
-                name="fecha" 
-                type="date" 
-                className="p-2 border border-gray-300 rounded w-full" 
-                value={form.fecha} 
-                onChange={handleChange} 
-                required 
+              <input
+                id="fecha"
+                name="fecha"
+                type="date"
+                className="p-2 border border-gray-300 rounded w-full"
+                value={form.fecha}
+                onChange={handleChange}
+                required
               />
             </div>
             <div className="flex flex-col gap-4 mt-4">
               <label htmlFor="tema" className="-mb-2 font-bold text-slate-500 text-xs uppercase">Tema</label>
-              <input 
-                id="tema" 
-                name="tema" 
-                className="p-2 border border-gray-300 rounded w-full" 
-                value={form.tema} 
-                onChange={handleChange} 
-                required 
+              <input
+                id="tema"
+                name="tema"
+                className="p-2 border border-gray-300 rounded w-full"
+                value={form.tema}
+                onChange={handleChange}
+                required
               />
             </div>
             {/* Captcha simple */}
@@ -263,9 +263,9 @@ export const EnviarSolicitud = () => {
               {captchaError && <span className="text-red-500 text-sm">{captchaError}</span>}
             </div>
             <div className="mt-6">
-              <button 
-                type="submit" 
-                className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50"
+              <button
+                type="submit"
+                className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 px-4 py-2 rounded-md w-full text-white transition-colors"
                 disabled={loading}
               >
                 {loading ? 'Enviando...' : 'Enviar solicitud'}
