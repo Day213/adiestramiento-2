@@ -1,59 +1,60 @@
-import React from "react";
-import { Layout } from "../components/layout";
-import { Mail } from "../../public/mail";
-import { Trash } from "../../public/trash";
-import { Link } from "react-router-dom";
+import React from "react"
+import { Layout } from "../components/layout"
+import { Mail } from "../../public/mail"
+import { FileText } from "../../public/fileText"
+import { Trash } from "../../public/trash"
+import { Link } from "react-router-dom"
 
-import { useState, useEffect } from "react";
-import { supabase } from "../supabase";
-
-import { Tab } from "@headlessui/react";
-import { PaginatedTable } from "../components/PaginatedTable";
+import { useState, useEffect } from "react"
+import { supabase } from "../supabase"
+import { useNavigate } from "react-router"
+import { Tab } from "@headlessui/react"
+import { PaginatedTable } from "../components/PaginatedTable"
 
 export const ListarSolicitud = () => {
-  const [solicitudes, setSolicitudes] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [pagePendientes, setPagePendientes] = useState(1);
-  const [pageRespondidas, setPageRespondidas] = useState(1);
-  const [isDeleting] = useState(false);
-  const [deletingId, setDeletingId] = useState(null);
+  const [solicitudes, setSolicitudes] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [pagePendientes, setPagePendientes] = useState(1)
+  const [pageRespondidas, setPageRespondidas] = useState(1)
+  const [isDeleting] = useState(false)
+  const [deletingId, setDeletingId] = useState(null)
 
   const handleDelete = async (id) => {
     if (!window.confirm('¿Estás seguro de que deseas eliminar esta solicitud? Esta acción no se puede deshacer.')) {
-      return;
+      return
     }
 
     try {
-      setDeletingId(id);
+      setDeletingId(id)
       const { error } = await supabase
         .from('solicitudes')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
 
-      if (error) throw error;
+      if (error) throw error
 
       // Update the state to remove the deleted item
-      setSolicitudes(solicitudes.filter(item => item.id !== id));
+      setSolicitudes(solicitudes.filter(item => item.id !== id))
     } catch (error) {
-      console.error('Error deleting request:', error);
-      alert('Error al eliminar la solicitud. Por favor intente de nuevo.');
+      console.error('Error deleting request:', error)
+      alert('Error al eliminar la solicitud. Por favor intente de nuevo.')
     } finally {
-      setDeletingId(null);
+      setDeletingId(null)
     }
-  };
+  }
 
   useEffect(() => {
     const fetchSolicitudes = async () => {
-      setLoading(true);
-      const { data, error } = await supabase.from("solicitudes").select("*");
-      if (!error) setSolicitudes(data);
-      setLoading(false);
-    };
-    fetchSolicitudes();
-  }, []);
+      setLoading(true)
+      const { data, error } = await supabase.from("solicitudes").select("*")
+      if (!error) setSolicitudes(data)
+      setLoading(false)
+    }
+    fetchSolicitudes()
+  }, [])
 
-  const solicitudesActivas = solicitudes.filter((s) => s.status === true);
-  const solicitudesRespondidas = solicitudes.filter((s) => s.status === false);
+  const solicitudesActivas = solicitudes.filter((s) => s.status === true)
+  const solicitudesRespondidas = solicitudes.filter((s) => s.status === false)
   const columns = [
     { label: "Solicitud", key: "tipo_solicitud" },
     { label: "Solicitante", key: "nombre_solicitante" },
@@ -64,27 +65,26 @@ export const ListarSolicitud = () => {
     { label: "Correo", key: "correo" },
     { label: "Fecha creación", key: "created_at" },
     { label: "Respuesta", key: "respuesta" },
-  ];
+  ]
 
-  // const navigate = useNavigate();
+  const navigate = useNavigate()
 
   const renderRow = (item) => {
     const fechaCorta = item.created_at
       ? new Date(item.created_at).toISOString().slice(0, 10)
-      : "";
+      : ""
 
     const fechaIgual =
       solicitudes.filter((s) => s.fecha_aproximada === item.fecha_aproximada)
-        .length > 1;
+        .length > 1
     return (
       <tr key={item.id} className="text-slate-500">
         <td className="px-4 py-2 border-slate-300 border-b">
           <span
-            className={`${
-              item.tipo_solicitud === "taller"
-                ? "bg-blue-800"
-                : "bg-amber-400 text-black!"
-            } p-1 rounded-md text-[10px] text-white uppercase`}
+            className={`${item.tipo_solicitud === "taller"
+              ? "bg-blue-800"
+              : "bg-amber-400 text-black!"
+              } p-1 rounded-md text-[10px] text-white uppercase`}
           >
             {item.tipo_solicitud}
           </span>
@@ -104,14 +104,12 @@ export const ListarSolicitud = () => {
         <td className="px-4 py-2 border-slate-300 border-b">
           <div className="flex justify-center items-center">
             <div
-              className={`flex justify-center items-center rounded-full text-white ${
-                fechaIgual ? "bg-amber-400" : "bg-slate-300"
-              }`}
+              className={`flex justify-center items-center rounded-full text-white ${fechaIgual ? "bg-amber-400" : "bg-slate-300"
+                }`}
             >
               <span
-                className={`p-1 px-2 font-bold text-[10px] text-slate-600 text-nowrap ${
-                  fechaIgual ? "text-black" : ""
-                }`}
+                className={`p-1 px-2 font-bold text-[10px] text-slate-600 text-nowrap ${fechaIgual ? "text-black" : ""
+                  }`}
               >
                 {item.fecha_aproximada}
               </span>
@@ -159,27 +157,26 @@ export const ListarSolicitud = () => {
         </td>
         <td className="px-4 py-2 border-slate-300 border-b">
           <div className="flex justify-center items-center gap-2">
-            
-              {/* <button onClick={() => navigate(`/responder-solicitudes/${item.id}`)} className="bg-slate-400 hover:bg-slate-700 p-1 px-3 rounded-md text-white transition-colors duration-200">
-                <Mail />
-              </button> */}
-            
-            <button 
+
+            <button onClick={() => navigate(`/crear-certificado/${item.id}`)} className="bg-slate-400 hover:bg-slate-700 p-1 px-3 rounded-md text-white transition-colors duration-200">
+              <FileText />
+            </button>
+
+            <button
               onClick={() => handleDelete(item.id)}
               disabled={isDeleting && deletingId === item.id}
-              className={`p-1 px-3 rounded-md text-white transition-colors duration-200 ${
-                isDeleting && deletingId === item.id 
-                  ? 'bg-red-700 cursor-not-allowed' 
-                  : 'bg-red-400 hover:bg-red-700'
-              }`}
+              className={`p-1 px-3 rounded-md text-white transition-colors duration-200 ${isDeleting && deletingId === item.id
+                ? 'bg-red-700 cursor-not-allowed'
+                : 'bg-red-400 hover:bg-red-700'
+                }`}
             >
               {isDeleting && deletingId === item.id ? 'Eliminando...' : <Trash />}
             </button>
           </div>
         </td>
       </tr>
-    );
-  };
+    )
+  }
 
   return (
     <Layout>
@@ -193,11 +190,10 @@ export const ListarSolicitud = () => {
               <Tab
                 className={({ selected }) =>
                   `w-full py-2.5 text-sm leading-5 font-medium text-slate-700 rounded-lg
-                    ${
-                      selected
-                        ? "bg-white shadow"
-                        : "text-blue-100 hover:bg-white/[0.12] hover:text-white"
-                    }`
+                    ${selected
+                    ? "bg-white shadow"
+                    : "text-blue-100 hover:bg-white/[0.12] hover:text-white"
+                  }`
                 }
               >
                 SOLICITUDES PENDIENTES ({solicitudesActivas.length})
@@ -241,5 +237,5 @@ export const ListarSolicitud = () => {
         </div>
       )}
     </Layout>
-  );
-};
+  )
+}
