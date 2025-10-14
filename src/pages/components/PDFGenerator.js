@@ -14,7 +14,7 @@ export const generatePDFsForParticipants = (formData) => {
 
     const doc = new jsPDF();
 
-    doc.addImage(mebreteImage, "JPEG", 10, 10, 190, 30);
+    doc.addImage(mebreteImage, "JPEG", 10, 10, 150, 25);
 
     doc.setFontSize(12);
     doc.setFont(undefined, "bold");
