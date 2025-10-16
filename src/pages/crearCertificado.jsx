@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { SignJWT } from 'jose'  // Changed from 'jsonwebtoken'
 import { Layout } from '../components/layout'
 import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../supabase'
@@ -78,18 +79,39 @@ export const CrearCertificado = () => {
     }).filter(Boolean)
   }
 
-  const handleGeneratePDFs = async () => {
-    // Genera un código único para cada participante
-    const participantesConQR = await Promise.all(formData.participante.map(async (p) => {
-      const uniqueId = `CERT-${p.cedula}-${Date.now()}`
-      const qrDataUrl = await generateQRCodeDataUrl(uniqueId)
-      return { ...p, qr: qrDataUrl, codigo: uniqueId }
-    }))
+const handleGeneratePDFs = async () => {
+  // Genera un código único y token JWT para cada participante
+  const participantesConQR = await Promise.all(formData.participante.map(async (p) => {
+    const uniqueId = `CERT-${p.cedula}-${Date.now()}`;
+    
+    // Generate JWT token using jose
+    const secret = new TextEncoder().encode('adiestramiento_certificados_secret');
+    const token = await new SignJWT({
+      id: uniqueId,
+      nombre: p.name,
+      nombre_curso_taller: formData.nombre_solicitud,
+      cedula: p.cedula,
+      duracion: formData.duracion,
+      fecha: new Date().toISOString()
+    })
+    .setProtectedHeader({ alg: 'HS256' })
+    .setIssuedAt()
+    .sign(secret);
+    
+    // Usar el token JWT como datos para el código QR
+    const qrDataUrl = await generateQRCodeDataUrl(token);
 
-    console.log(participantesConQR)
-    // Llama a la función de PDF pasando los datos con QR
-    generatePDFsForParticipants({ ...formData, participante: participantesConQR })
-  }
+    return { 
+      ...p, 
+      qr: qrDataUrl, 
+      codigo: uniqueId,
+      token
+    };
+  }));
+
+  console.log('Participantes con QR y JWT:', participantesConQR);
+  generatePDFsForParticipants({ ...formData, participante: participantesConQR });
+};
 
   return (
     <Layout>
