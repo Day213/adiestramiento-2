@@ -16,7 +16,11 @@
     "@tailwindcss/vite": "^4.1.11",
     "axios": "^1.10.0",
     "emailjs-com": "^3.2.0",
+    "jose": "^6.1.0",
     "jspdf": "^3.0.3",
+    "jsqr": "^1.4.0",
+    "pdfjs-dist": "^5.4.296",
+    "qrcode": "^1.5.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-router-dom": "^7.6.2"

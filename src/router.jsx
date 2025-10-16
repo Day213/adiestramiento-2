@@ -9,6 +9,7 @@ import { ResponderSolicitud } from "./pages/responderSolicitud"
 import { supabase } from './supabase'
 import NetlifyEmailForm from "./pages/NetlifyEmailForm"
 import { CrearCertificado } from "./pages/crearCertificado"
+import { ValidarDocumento } from "./pages/validarDocumento"
 
 // Componente para rutas protegidas
 const ProtectedRoute = ({ children }) => {
@@ -73,6 +74,8 @@ export const Router = () => {
           <EnviarSolicitud />
         </PublicRoute>
       } />
+      {/* Ruta pública para validar documentos */}
+      <Route path="/validar-documento" element={<ValidarDocumento />} />
       {/* Rutas protegidas solo para autenticados */}
       <Route path="/listar-solicitudes" element={
         <ProtectedRoute>

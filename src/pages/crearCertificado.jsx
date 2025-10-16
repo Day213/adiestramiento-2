@@ -4,6 +4,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { supabase } from '../supabase'
 import { InputArray } from './components/inputArray'
 import { generatePDFsForParticipants } from './components/PDFGenerator'
+import { generateQRCodeDataUrl } from './components/QRCodeGenerator'
+
 
 export const CrearCertificado = () => {
   const navigate = useNavigate()
@@ -74,6 +76,19 @@ export const CrearCertificado = () => {
       console.error('Invalid participant format:', participant)
       return null
     }).filter(Boolean)
+  }
+
+  const handleGeneratePDFs = async () => {
+    // Genera un código único para cada participante
+    const participantesConQR = await Promise.all(formData.participante.map(async (p) => {
+      const uniqueId = `CERT-${p.cedula}-${Date.now()}`
+      const qrDataUrl = await generateQRCodeDataUrl(uniqueId)
+      return { ...p, qr: qrDataUrl, codigo: uniqueId }
+    }))
+
+    console.log(participantesConQR)
+    // Llama a la función de PDF pasando los datos con QR
+    generatePDFsForParticipants({ ...formData, participante: participantesConQR })
   }
 
   return (
@@ -190,7 +205,7 @@ export const CrearCertificado = () => {
 
                   <button
                     type="button"
-                    onClick={() => generatePDFsForParticipants(formData)}
+                    onClick={handleGeneratePDFs}
                     className="bg-blue-500 hover:bg-blue-700 mt-6 px-4 py-2 rounded w-full font-bold text-white uppercase transition-colors duration-200"
                   >
                     Descargar PDFs por Participante

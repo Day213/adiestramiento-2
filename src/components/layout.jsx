@@ -38,11 +38,15 @@ export const Layout = ({ children }) => {
                   </Link>
                 </li>
                 <li>
+                  <Link to="/validar-documento" className="font-bold text-slate-400 hover:text-blue-600 uppercase transition-all">
+                    Validar documento
+                  </Link>
+                </li>
+                <li>
                   <Link to="/login" className="font-bold text-slate-400 hover:text-blue-600 uppercase transition-all">
                     Iniciar Sesión
                   </Link>
                 </li>
-                
               </>
             )}
             {user && (

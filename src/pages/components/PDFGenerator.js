@@ -1,5 +1,6 @@
 import jsPDF from "jspdf";
-import mebreteImage from "/mebrete.jpg"; // Asegúrate de que la ruta sea correcta
+import mebreteImage from "/mebrete.jpg";
+import footer from "/footer.jpg";
 
 export const generatePDFsForParticipants = (formData) => {
   console.log("generatePDFsForParticipants called with formData:", formData);
@@ -14,7 +15,18 @@ export const generatePDFsForParticipants = (formData) => {
 
     const doc = new jsPDF();
 
-    doc.addImage(mebreteImage, "JPEG", 10, 10, 150, 25);
+    // Agrega la imagen 'mebreteImage' al PDF.
+    // Los números representan:
+    // 10: posición X (horizontal) desde la izquierda
+    // 10: posición Y (vertical) desde arriba
+    // 150: ancho de la imagen en el PDF
+    // 25: alto de la imagen en el PDF
+    doc.addImage(mebreteImage, "JPEG", 20, 5, 150, 30);
+
+    // Agregar el QR en la parte superior derecha, absoluto, sin afectar el diseño
+    if (participant.qr) {
+      doc.addImage(participant.qr, "PNG", 170, 5, 30, 30);
+    }
 
     doc.setFontSize(12);
     doc.setFont(undefined, "bold");
@@ -60,6 +72,8 @@ export const generatePDFsForParticipants = (formData) => {
     doc.text("_________________________", 70, 210);
     doc.text("Licda. America Colina", 79, 215);
     doc.text("Jefe del departamento de Adiestramiento y Desarrollo", 50, 220);
+
+    doc.addImage(footer, "JPEG", 20, 275, 180, 18);
 
     const fileName = `constancia_${participant.name.replace(/\s+/g, "_")}_${
       index + 1
