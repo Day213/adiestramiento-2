@@ -6,6 +6,7 @@ import { supabase } from '../supabase'
 import { InputArray } from './components/inputArray'
 import { generatePDFsForParticipants } from './components/PDFGenerator'
 import { generateQRCodeDataUrl } from './components/QRCodeGenerator'
+import { PaticipantesSection } from './components/paticipantesSection'
 
 
 export const CrearCertificado = () => {
@@ -13,6 +14,7 @@ export const CrearCertificado = () => {
   const { id } = useParams()
   const [solicitud, setSolicitud] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [participantes, setParticipantes] = useState([{ name: "", cedula: "", folio: "", libro: "", reglon: "" },]);
 
   const [formData, setFormData] = useState({
     nombre_solicitud: '',
@@ -24,6 +26,13 @@ export const CrearCertificado = () => {
     contenido: [],
     participante: [],
   })
+
+  useEffect(() => {
+    setFormData((prevData) => ({
+      ...prevData,
+      participante: participantes,
+    }))
+  }, [participantes])
 
   useEffect(() => {
     const fetchSolicitud = async () => {
@@ -50,12 +59,12 @@ export const CrearCertificado = () => {
     }
     fetchSolicitud()
 
-    console.log('Solicitud:', solicitud)
+    // console.log('Solicitud:', solicitud)
   }, [id])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    console.log(formData)
+    // console.log(formData)
   }
 
   const handleDuracionChange = (value, type) => {
@@ -63,20 +72,6 @@ export const CrearCertificado = () => {
       ...prevData,
       duracion: `${value} ${type}`,
     }))
-  }
-
-  const parseParticipants = (participants) => {
-    return participants.map((participant) => {
-      const match = participant.match(/^(?:N|Nombre):\s*(.+)\s*(?:C|Cedula):\s*(\d+)$/i)
-      if (match) {
-        return {
-          name: match[1],
-          cedula: match[2],
-        }
-      }
-      console.error('Invalid participant format:', participant)
-      return null
-    }).filter(Boolean)
   }
 
 const handleGeneratePDFs = async () => {
@@ -116,10 +111,10 @@ const handleGeneratePDFs = async () => {
   return (
     <Layout>
       <div className="flex justify-center items-center p-4 w-full h-[80vh]">
-        <div className="shadow-xl p-4 rounded-md w-[40vw]">
+        <div className="shadow-xl p-4 rounded-md w-[50vw] ">
           <div className="flex justify-between items-center text-center">
             <h1 className="font-bold text-slate-600 text-xl uppercase">Generar certificados</h1>
-            <button onClick={() => navigate(-1)} className="bg-slate-200 p-1 px-3 rounded-md text-slate-600 uppercase transition-colors duration-200">
+            <button onClick={() => navigate(-1)} className="bg-slate-200 p-1 px-3 rounded-md text-slate-600 uppercase transition-colors duration-200 ">
               volver
             </button>
           </div>
@@ -129,7 +124,8 @@ const handleGeneratePDFs = async () => {
             ) : (
               <div>
                 <form className="mt-4" onSubmit={handleSubmit}>
-                  <div className="mb-4">
+                  <div className="overflow-y-auto h-[60vh] pr-4">
+                    <div className="mb-4">
                     <label className="block mb-2 font-bold text-gray-700 text-sm" htmlFor="nombre">
                       Nombre del {solicitud.tipo_solicitud}
                     </label>
@@ -212,18 +208,9 @@ const handleGeneratePDFs = async () => {
                       label="contenido"
                     />
                   </div>
-                  <div className="mb-4">
-                    <label className="block mb-2 font-bold text-gray-700 text-sm" htmlFor="participante">
-                      Participantes
-                    </label>
-                    <InputArray
-                      onTagsChange={(newTags) => {
-                        const parsedParticipants = parseParticipants(newTags)
-                        setFormData({ ...formData, participante: parsedParticipants })
-                      }}
-                      label="participantes"
-                    />
+                  <PaticipantesSection participantes={participantes} setParticipantes={setParticipantes} />
                   </div>
+                  
 
                   <button
                     type="button"

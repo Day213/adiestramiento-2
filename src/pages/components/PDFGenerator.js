@@ -75,6 +75,71 @@ export const generatePDFsForParticipants = (formData) => {
 
     doc.addImage(footer, "JPEG", 20, 275, 180, 18);
 
+    // Agregar una nueva página para los detalles del programa
+    doc.addPage();
+
+    // Agregar encabezado con el logo
+    doc.addImage(mebreteImage, "JPEG", 20, 10, 150, 30);
+    if (participant.qr) {
+      doc.addImage(participant.qr, "PNG", 170, 5, 30, 30);
+    }
+
+    doc.setFontSize(12);
+    doc.setFont(undefined, "bold");
+    doc.text("CONTENIDO", 20, 55);
+
+    
+    // Agregar lista con el contenido del programa
+    doc.setFontSize(12);
+    doc.setFont(undefined, "normal");
+    doc.setLineHeightFactor(1.5); // Establece un interlineado mayor
+    let y = 65;
+    formData.contenido.forEach((item, index) => {
+      doc.text(`${index + 1}. ${item}`, 20, y, {
+        bullet: {
+          type: "circle",
+          color: [50, 50, 200],
+          offset: 10,
+        },
+      });
+      y += 10;
+    });
+
+
+
+
+
+    
+    // Agregar tabla de registro en la esquina inferior derecha
+    const tableX = 100; // Posición X de la tabla
+    const tableY = 260; // Posición Y de la tabla
+    const cellWidth = 30;
+    const cellHeight = 8;
+    
+    // Dibujar encabezados de la tabla
+    doc.setFontSize(8);
+    doc.setFont(undefined, "bold");
+    doc.text("N° LIBRO", tableX + 5, tableY - 3);
+    doc.text("FOLIO", tableX + cellWidth + 5, tableY - 3);
+    doc.text("N° RENGLON", tableX + (cellWidth * 2) + 5, tableY - 3);
+    
+    // Dibujar celdas con los datos del participante
+    doc.setFont(undefined, "normal");
+    doc.setFontSize(9);
+    
+    // Dibujar celdas
+    doc.rect(tableX, tableY, cellWidth, cellHeight);
+    doc.rect(tableX + cellWidth, tableY, cellWidth, cellHeight);
+    doc.rect(tableX + (cellWidth * 2), tableY, cellWidth, cellHeight);
+    
+    // Agregar los valores en las celdas
+    doc.text(participant.libro || "", tableX + 5, tableY + 6);
+    doc.text(participant.folio || "", tableX + cellWidth + 5, tableY + 6);
+    doc.text(participant.reglon || "", tableX + (cellWidth * 2) + 5, tableY + 6);
+    
+    // Agregar el pie de página con logo
+    doc.addImage(footer, "JPEG", 20, 275, 180, 18);
+
     const fileName = `constancia_${participant.name.replace(/\s+/g, "_")}_${
       index + 1
     }.pdf`;
