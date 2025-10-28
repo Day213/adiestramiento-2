@@ -1,5 +1,8 @@
-import jsPDF from "jspdf";
+import jsPDF, { GState } from "jspdf";
 import mebreteImage from "/mebrete.jpg";
+import americaFirma from "/america.png";
+import joseFirma from "/jose.png";
+import kikiFirma from "/kiki.png";
 import footer from "/footer.jpg";
 
 export const generatePDFsForParticipants = (formData) => {
@@ -26,6 +29,11 @@ export const generatePDFsForParticipants = (formData) => {
     // Agregar el QR en la parte superior derecha, absoluto, sin afectar el diseño
     if (participant.qr) {
       doc.addImage(participant.qr, "PNG", 170, 5, 30, 30);
+      doc.setFontSize(8);
+      doc.saveGraphicsState();
+      doc.setGState(new GState({ opacity: 0.5 }));
+      doc.text(participant.token, 22, 260, { align: "left", maxWidth: 165 });
+      doc.restoreGraphicsState();
     }
 
     doc.setFontSize(12);
@@ -42,7 +50,17 @@ export const generatePDFsForParticipants = (formData) => {
     );
     doc.setFont(undefined, "normal");
     doc.setLineHeightFactor(1.5); // Establece un interlineado mayor
-    const content = `Por medio de la presente se certifica que el Ciudadano (a): ${participant.name}, Titular de la Cedula de Identidad N°: ${participant.cedula}, En calidad de PARTICIPANTE ha culminado exitosamente el TALLER: ${formData.nombre_solicitud} con una duración de ${formData.duracion} y celebrado de la fecha inicial ${formattedDate} realizado en ${formData.instalaciones}.`;
+    const content = `Por medio de la presente se certifica que el Ciudadano (a): ${capitalizeWords(
+      participant.name
+    )}, Titular de la Cedula de Identidad N°: ${
+      participant.cedula
+    }, En calidad de PARTICIPANTE ha culminado exitosamente el TALLER: ${
+      formData.nombre_solicitud
+    } con una duración de ${
+      formData.duracion
+    } y celebrado de la fecha inicial ${formattedDate} realizado en ${
+      formData.instalaciones
+    }.`;
     doc.text(content, 20, 70, { align: "left", maxWidth: 170 });
 
     doc.text(
@@ -61,14 +79,17 @@ export const generatePDFsForParticipants = (formData) => {
     );
 
     doc.setFont(undefined, "normal");
+    doc.addImage(kikiFirma, "PNG", 20, 135, 45, 25);
     doc.text("_________________________", 20, 160);
-    doc.text("Licda. Erika Galanos", 20, 165);
+    doc.text("Licda. Kikitza Galanos", 20, 165);
     doc.text("Directora de Recursos Humanos", 20, 170);
 
+    doc.addImage(joseFirma, "PNG", 120, 135, 40, 20);
     doc.text("_________________________", 120, 160);
     doc.text("Licdo. José Ramírez", 120, 165);
     doc.text("Vicerrector Administrativo UNEFM", 120, 170);
 
+    doc.addImage(americaFirma, "PNG", 80, 190, 40, 20);
     doc.text("_________________________", 70, 210);
     doc.text("Licda. America Colina", 79, 215);
     doc.text("Jefe del departamento de Adiestramiento y Desarrollo", 50, 220);
@@ -88,7 +109,6 @@ export const generatePDFsForParticipants = (formData) => {
     doc.setFont(undefined, "bold");
     doc.text("CONTENIDO", 20, 55);
 
-    
     // Agregar lista con el contenido del programa
     doc.setFontSize(12);
     doc.setFont(undefined, "normal");
@@ -105,45 +125,45 @@ export const generatePDFsForParticipants = (formData) => {
       y += 10;
     });
 
-
-
-
-
-    
     // Agregar tabla de registro en la esquina inferior derecha
     const tableX = 100; // Posición X de la tabla
     const tableY = 260; // Posición Y de la tabla
     const cellWidth = 30;
     const cellHeight = 8;
-    
+
     // Dibujar encabezados de la tabla
     doc.setFontSize(8);
     doc.setFont(undefined, "bold");
     doc.text("N° LIBRO", tableX + 5, tableY - 3);
     doc.text("FOLIO", tableX + cellWidth + 5, tableY - 3);
-    doc.text("N° RENGLON", tableX + (cellWidth * 2) + 5, tableY - 3);
-    
+    doc.text("N° RENGLON", tableX + cellWidth * 2 + 5, tableY - 3);
+
     // Dibujar celdas con los datos del participante
     doc.setFont(undefined, "normal");
     doc.setFontSize(9);
-    
+
     // Dibujar celdas
     doc.rect(tableX, tableY, cellWidth, cellHeight);
     doc.rect(tableX + cellWidth, tableY, cellWidth, cellHeight);
-    doc.rect(tableX + (cellWidth * 2), tableY, cellWidth, cellHeight);
-    
+    doc.rect(tableX + cellWidth * 2, tableY, cellWidth, cellHeight);
+
     // Agregar los valores en las celdas
     doc.text(participant.libro || "", tableX + 5, tableY + 6);
     doc.text(participant.folio || "", tableX + cellWidth + 5, tableY + 6);
-    doc.text(participant.reglon || "", tableX + (cellWidth * 2) + 5, tableY + 6);
-    
+    doc.text(participant.reglon || "", tableX + cellWidth * 2 + 5, tableY + 6);
+
     // Agregar el pie de página con logo
     doc.addImage(footer, "JPEG", 20, 275, 180, 18);
 
-    const fileName = `constancia_${participant.name.replace(/\s+/g, "_")}_${
-      index + 1
-    }.pdf`;
+    const fileName = `constancia_${capitalizeWords(participant.name).replace(
+      /\s+/g,
+      "_"
+    )}_${index + 1}.pdf`;
     console.log(`Saving PDF with fileName: ${fileName}`);
     doc.save(fileName);
   });
+};
+
+const capitalizeWords = (str) => {
+  return str.replace(/\b\w/g, (char) => char.toUpperCase());
 };
