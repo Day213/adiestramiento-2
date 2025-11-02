@@ -1,23 +1,26 @@
 import React from "react"
 import { Layout } from "../components/layout"
-import { Mail } from "../../public/mail"
 import { FileText } from "../../public/fileText"
 import { Trash } from "../../public/trash"
-import { Link } from "react-router-dom"
+
 
 import { useState, useEffect } from "react"
 import { supabase } from "../supabase"
-import { useNavigate } from "react-router"
+import { useNavigate, useSearchParams } from "react-router"
 import { Tab } from "@headlessui/react"
 import { PaginatedTable } from "../components/PaginatedTable"
+import { CourseActionsDropdown } from "./components/CourseActionsDropdown"
 
 export const ListarSolicitud = () => {
   const [solicitudes, setSolicitudes] = useState([])
+  const [cursosYTalleres, setCursosYTalleres] = useState([])
   const [loading, setLoading] = useState(true)
+  const [cursosYTalleresPage, setCursosYTalleresPage] = useState(1)
   const [pagePendientes, setPagePendientes] = useState(1)
-  const [pageRespondidas, setPageRespondidas] = useState(1)
   const [isDeleting] = useState(false)
   const [deletingId, setDeletingId] = useState(null)
+  const [searchParams, setSearchParams] = useSearchParams({ tab: 'solicitudes' })
+  const activeTab = searchParams.get('tab') || 'solicitudes'
 
   const handleDelete = async (id) => {
     if (!window.confirm('¿Estás seguro de que deseas eliminar esta solicitud? Esta acción no se puede deshacer.')) {
@@ -43,6 +46,31 @@ export const ListarSolicitud = () => {
     }
   }
 
+
+  const handleDeleteCurso = async (id) => {
+    if (!window.confirm('¿Estás seguro de que deseas eliminar este curso/taller? Esta acción no se puede deshacer.')) {
+      return
+    }
+
+    try {
+      setDeletingId(id)
+      const { error } = await supabase
+        .from('cursos_talleres')
+        .delete()
+        .eq('id', id)
+
+      if (error) throw error
+
+      // Update the state to remove the deleted item
+      setCursosYTalleres(cursosYTalleres.filter(item => item.id !== id))
+    } catch (error) {
+      console.error('Error deleting request:', error)
+      alert('Error al eliminar la solicitud. Por favor intente de nuevo.')
+    } finally {
+      setDeletingId(null)
+    }
+  }
+
   useEffect(() => {
     const fetchSolicitudes = async () => {
       setLoading(true)
@@ -50,7 +78,16 @@ export const ListarSolicitud = () => {
       if (!error) setSolicitudes(data)
       setLoading(false)
     }
+    const fetchCursosYTalleres = async () => {
+      setLoading(true)
+      const { data, error } = await supabase.from("cursos_talleres").select("*").order('fecha_emision', { ascending: false })
+
+      if (!error) setCursosYTalleres(data)
+      setLoading(false)
+    }
+
     fetchSolicitudes()
+    fetchCursosYTalleres()
   }, [])
 
   const solicitudesActivas = solicitudes.filter((s) => s.status === true)
@@ -64,16 +101,26 @@ export const ListarSolicitud = () => {
     { label: "Telefono", key: "telefono" },
     { label: "Correo", key: "correo" },
     { label: "Fecha creación", key: "created_at" },
-    { label: "Respuesta", key: "respuesta" },
+    { label: "Acciones", key: "acciones" },
   ]
+
+  const columnsCursosYTalleres = [
+    { label: "Curso/Taller", key: "titulo" },
+    { label: "Duración", key: "tiempo" },
+    { label: "Fecha de emisión", key: "fecha_emision" },
+    { label: "Instructor", key: "dictado_por" },
+    { label: "Temas", key: "temas" },
+    { label: "Visible", key: "estatus" },
+    { label: "Acciones", key: "acciones" },
+  ]
+
 
   const navigate = useNavigate()
 
-  const renderRow = (item) => {
+  const renderRowSolicitud = (item) => {
     const fechaCorta = item.created_at
       ? new Date(item.created_at).toISOString().slice(0, 10)
       : ""
-
     const fechaIgual =
       solicitudes.filter((s) => s.fecha_aproximada === item.fecha_aproximada)
         .length > 1
@@ -158,7 +205,7 @@ export const ListarSolicitud = () => {
         <td className="px-4 py-2 border-slate-300 border-b">
           <div className="flex justify-center items-center gap-2">
 
-            <button onClick={() => navigate(`/crear-certificado/${item.id}`)} className="bg-slate-400 hover:bg-slate-700 p-1 px-3 rounded-md text-white transition-colors duration-200">
+            <button onClick={() => navigate(`/crear-certificado/${item.id}-solicitudes`)} className="bg-slate-400 hover:bg-slate-700 p-1 px-3 rounded-md text-white transition-colors duration-200">
               <FileText />
             </button>
 
@@ -178,6 +225,92 @@ export const ListarSolicitud = () => {
     )
   }
 
+  const handleChangeEstatus = async (id, currentStatus) => {
+    if (!window.confirm('¿Estás seguro de cambiar la visibilidad de este curso o taller? Si lo desactivas, no se mostrará en la parte pública de la web. Si lo activas, se hará visible.')) {
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('cursos_talleres')
+        .update({ estatus: !currentStatus })
+        .eq('id', id)
+
+      if (error) throw error
+
+      // Update the state to reflect the new status
+      setCursosYTalleres(cursosYTalleres.map(item =>
+        item.id === id ? { ...item, estatus: !currentStatus } : item
+      ))
+    } catch (error) {
+      console.error('Error updating status:', error)
+      alert('Error al cambiar el estado. Por favor intente de nuevo.')
+    }
+  }
+
+
+  const renderRowCursoYTaller = (item) => {
+    const fechaCorta = item.created_at
+      ? new Date(item.created_at).toISOString().slice(0, 10)
+      : ''
+    return (
+      <tr key={item.id} className="text-slate-500">
+        <td className="px-4 py-2 border-slate-300 border-b text-left"><span className="max-w-[300px] line-clamp-1">{item.titulo}</span></td>
+        <td className="px-4 py-2 border-slate-300 border-b">{item.tiempo} {item.tipo_tiempo}</td>
+        <td className="px-4 py-2 border-slate-300 border-b">
+          {
+            (() => {
+              const today = new Date()
+              const emissionDate = new Date(item.fecha_emision)
+
+              today.setHours(0, 0, 0, 0)
+              emissionDate.setHours(0, 0, 0, 0)
+
+              let dateClass = 'bg-slate-400' // Default to gray
+              let dateInfo = ''
+
+              if (emissionDate.toDateString() === today.toDateString()) {
+                dateClass = 'bg-orange-400' // Today
+                dateInfo = " (Hoy)"
+              } else if (emissionDate < today) {
+                dateClass = 'bg-slate-400' // Past date
+                const diffTime = Math.abs(emissionDate.getTime() - today.getTime())
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+                dateInfo = ` (Hace ${diffDays} días)`
+              } else {
+                const oneWeekFromNow = new Date(today)
+                oneWeekFromNow.setDate(today.getDate() + 7)
+
+                const diffTime = Math.abs(emissionDate.getTime() - today.getTime())
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+                if (emissionDate <= oneWeekFromNow) {
+                  dateClass = 'bg-blue-400' // Less than a week away
+                  dateInfo = ` (Faltan ${diffDays} días)`
+                } else {
+                  dateClass = 'bg-slate-400' // More than a week away (default gray)
+                  dateInfo = ` (Faltan ${diffDays} días)` // Still show days for future dates
+                }
+              }
+
+              return (
+                <span className={`p-1 px-2 font-bold text-[10px] rounded-full text-white ${dateClass}`}>
+                  {dateInfo}
+                </span>
+              )
+            })()
+          }
+        </td>
+        <td className="px-4 py-2 border-slate-300 border-b capitalize"><span className="max-w-[200px] line-clamp-1">{item.dictado_por}</span></td>
+        <td className="px-4 py-2 border-slate-300 border-b">{item.temas.length}</td>
+        <td className="px-4 py-2 border-slate-300 border-b">{item.estatus ? 'Si' : 'No'}</td>
+        <td className="px-4 py-2 border-slate-300 border-b">
+          <CourseActionsDropdown item={item} handleChangeEstatus={handleChangeEstatus} handleDeleteCurso={handleChangeEstatus} isDeleting={isDeleting} deletingId={deletingId} />
+        </td>
+      </tr>
+    )
+  }
+
   return (
     <Layout>
       {loading ? (
@@ -185,7 +318,12 @@ export const ListarSolicitud = () => {
       ) : (
         <div className="bg-blue-50 shadow-xl p-4 rounded-md h-[83vh] overflow-y-auto">
           <div className="mb-4 font-semibold text-blue-900"></div>
-          <Tab.Group>
+          <Tab.Group 
+            defaultIndex={activeTab === 'solicitudes' ? 0 : 1}
+            onChange={(index) => {
+              setSearchParams({ tab: index === 0 ? 'solicitudes' : 'cursos' })
+            }}
+          >
             <Tab.List className="flex space-x-1 bg-blue-900/20 mb-4 p-1 rounded-xl">
               <Tab
                 className={({ selected }) =>
@@ -198,24 +336,23 @@ export const ListarSolicitud = () => {
               >
                 SOLICITUDES PENDIENTES ({solicitudesActivas.length})
               </Tab>
-              {/* <Tab
+              <Tab
                 className={({ selected }) =>
                   `w-full py-2.5 text-sm leading-5 font-medium text-slate-700 rounded-lg
-                    ${
-                      selected
-                        ? "bg-white shadow"
-                        : "text-blue-100 hover:bg-white/[0.12] hover:text-white"
-                    }`
+                    ${selected
+                    ? "bg-white shadow"
+                    : "text-blue-100 hover:bg-white/[0.12] hover:text-white"
+                  }`
                 }
               >
-                SOLICITUDES RESPONDIDAS
-              </Tab> */}
+                LISTA DE CURSOS Y TALLERES ({cursosYTalleres.length})
+              </Tab>
             </Tab.List>
             <Tab.Panels>
               <Tab.Panel>
                 <PaginatedTable
                   data={solicitudesActivas}
-                  renderRow={renderRow}
+                  renderRow={renderRowSolicitud}
                   columns={columns}
                   rowsPerPage={10}
                   pageState={pagePendientes}
@@ -224,12 +361,12 @@ export const ListarSolicitud = () => {
               </Tab.Panel>
               <Tab.Panel>
                 <PaginatedTable
-                  data={solicitudesRespondidas}
-                  renderRow={renderRow}
-                  columns={columns}
+                  data={cursosYTalleres}
+                  renderRow={renderRowCursoYTaller}
+                  columns={columnsCursosYTalleres}
                   rowsPerPage={10}
-                  pageState={pageRespondidas}
-                  setPageState={setPageRespondidas}
+                  pageState={cursosYTalleresPage}
+                  setPageState={setCursosYTalleresPage}
                 />
               </Tab.Panel>
             </Tab.Panels>

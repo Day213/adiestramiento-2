@@ -1,12 +1,13 @@
 
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { supabase } from '../supabase'
 import { useUser } from '../context/useUser'
 
 export const Layout = ({ children }) => {
   const { user } = useUser()
   const [menuOpen, setMenuOpen] = useState(false)
+  const location = useLocation()
   const logOut = () => {
     supabase.auth.signOut()
     setMenuOpen(false)
@@ -33,28 +34,45 @@ export const Layout = ({ children }) => {
             {!user && (
               <>
                 <li>
-                  <Link to="/" className="font-bold text-slate-400 hover:text-blue-600 uppercase transition-all">
+                  <Link to="/" className={`font-bold text-sm uppercase transition-all ${location.pathname === '/' ? 'text-blue-400' : 'text-slate-400 hover:text-blue-700'}`}>
+                    Cursos disponibles
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/solicitudes" className={`font-bold text-sm uppercase transition-all ${location.pathname === '/solicitudes' ? 'text-blue-400' : 'text-slate-400 hover:text-blue-700'}`}>
                     Crear solicitud
                   </Link>
                 </li>
                 <li>
-                  <Link to="/validar-documento" className="font-bold text-slate-400 hover:text-blue-600 uppercase transition-all">
+                  <Link to="/validar-documento" className={`font-bold text-sm uppercase transition-all ${location.pathname === '/validar-documento' ? 'text-blue-400' : 'text-slate-400 hover:text-blue-700'}`}>
                     Validar documento
                   </Link>
                 </li>
                 <li>
-                  <Link to="/login" className="font-bold text-slate-400 hover:text-blue-600 uppercase transition-all">
+                  <Link to="/login" className={`font-bold text-sm uppercase transition-all ${location.pathname === '/login' ? 'text-blue-400' : 'text-slate-400 hover:text-blue-700'}`}>
                     Iniciar Sesión
                   </Link>
                 </li>
               </>
             )}
             {user && (
-              <li>
-                <button className="bg-red-400 p-2 rounded-md font-bold text-white uppercase" onClick={logOut}>
-                  Cerrar Sesión
-                </button>
-              </li>
+              <>
+                <li>
+                  <Link to="/nuevo-curso-taller" className={`font-bold text-sm uppercase transition-all ${location.pathname === '/nuevo-curso-taller' ? 'text-blue-400' : 'text-slate-400 hover:text-blue-700'}`}>
+                    Nuevo curso o taller
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/listar-solicitudes" className={`font-bold text-sm uppercase transition-all ${location.pathname === '/listar-solicitudes' ? 'text-blue-400' : 'text-slate-400 hover:text-blue-700'}`}>
+                    Lista de cursos y talleres
+                  </Link>
+                </li>
+                <li>
+                  <button className="bg-slate-400 p-2 rounded-md font-bold text-white text-sm uppercase" onClick={logOut}>
+                    Cerrar Sesión
+                  </button>
+                </li>
+              </>
             )}
           </ul>
         </nav>
@@ -65,23 +83,40 @@ export const Layout = ({ children }) => {
               {!user && (
                 <>
                   <li>
-                    <Link to="/" className="font-bold text-slate-400 hover:text-blue-600 transition-all" onClick={() => setMenuOpen(false)}>
+                    <Link to="/" className={`font-bold transition-all ${location.pathname === '/' ? 'text-blue-400' : 'text-slate-400 hover:text-blue-700'}`} onClick={() => setMenuOpen(false)}>
                       Crear solicitud
                     </Link>
                   </li>
                   <li>
-                    <Link to="/login" className="font-bold text-slate-400 hover:text-blue-600 transition-all" onClick={() => setMenuOpen(false)}>
+                    <Link to="/validar-documento" className={`font-bold transition-all ${location.pathname === '/validar-documento' ? 'text-blue-400' : 'text-slate-400 hover:text-blue-700'}`} onClick={() => setMenuOpen(false)}>
+                      Validar documento
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/login" className={`font-bold transition-all ${location.pathname === '/login' ? 'text-blue-400' : 'text-slate-400 hover:text-blue-700'}`} onClick={() => setMenuOpen(false)}>
                       Iniciar Sesión
                     </Link>
                   </li>
                 </>
               )}
               {user && (
-                <li>
-                  <button className="bg-red-400 p-2 rounded-md w-full font-bold text-white" onClick={logOut}>
-                    Cerrar Sesión
-                  </button>
-                </li>
+                <>
+                  <li>
+                    <Link to="/nuevo-curso-taller" className={`font-bold transition-all ${location.pathname === '/nuevo-curso-taller' ? 'text-blue-400' : 'text-slate-400 hover:text-blue-700'}`} onClick={() => setMenuOpen(false)}>
+                      Nuevo curso o taller
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/listar-solicitudes" className={`font-bold transition-all ${location.pathname === '/listar-solicitudes' ? 'text-blue-400' : 'text-slate-400 hover:text-blue-700'}`} onClick={() => setMenuOpen(false)}>
+                      Lista de cursos y talleres
+                    </Link>
+                  </li>
+                  <li>
+                    <button className="bg-slate-400 p-2 rounded-md w-full font-bold text-white" onClick={logOut}>
+                      Cerrar Sesión
+                    </button>
+                  </li>
+                </>
               )}
             </ul>
           </nav>

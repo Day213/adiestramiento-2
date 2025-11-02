@@ -10,6 +10,9 @@ import { supabase } from './supabase'
 import NetlifyEmailForm from "./pages/NetlifyEmailForm"
 import { CrearCertificado } from "./pages/crearCertificado"
 import { ValidarDocumento } from "./pages/validarDocumento"
+import { CursoTallerPage } from "./pages/cursoTallerPage"
+import { ListarCursosyTallers } from "./pages/listarCursosyTallers"
+import { EditarCursoyTaller } from "./pages/editarCursoyTaller"
 
 // Componente para rutas protegidas
 const ProtectedRoute = ({ children }) => {
@@ -69,9 +72,15 @@ export const Router = () => {
           <EnviarSolicitud />
         </PublicRoute>
       } />
-      <Route path="/" element={
+      <Route path="/solicitudes" element={
         <PublicRoute>
           <EnviarSolicitud />
+        </PublicRoute>
+      } />
+
+      <Route path="/" element={
+        <PublicRoute>
+          <ListarCursosyTallers />
         </PublicRoute>
       } />
       {/* Ruta pública para validar documentos */}
@@ -87,6 +96,19 @@ export const Router = () => {
           <ResponderSolicitud />
         </ProtectedRoute>
       } />
+
+      <Route path="/nuevo-curso-taller" element={
+        <ProtectedRoute>
+          <CursoTallerPage />
+        </ProtectedRoute>
+      } />
+
+      <Route path="/editar-curso-taller/:id" element={
+        <ProtectedRoute>
+          <EditarCursoyTaller />
+        </ProtectedRoute>
+      } />
+
       <Route path="/crear-certificado/:id" element={
         <ProtectedRoute>
           <CrearCertificado />
