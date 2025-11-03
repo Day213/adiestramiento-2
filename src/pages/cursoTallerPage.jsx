@@ -1,7 +1,10 @@
 import { Layout } from '../components/layout'
 import { useState } from 'react'
 import { supabase } from '../supabase'
+
 import { InputArray } from './components/inputArray'
+
+import { RichTextEditor } from '../components/RichTextEditor'
 import { useNavigate } from 'react-router'
 import React from 'react'
 
@@ -39,9 +42,8 @@ export const CursoTallerPage = ({ data }) => {
         if (error) { throw error }
 
       }
-      console.log(error)
     } catch (error) {
-
+      console.log(error)
     }
     finally {
       setSolicitud(initialState)
@@ -54,7 +56,7 @@ export const CursoTallerPage = ({ data }) => {
 
   return (
     <Layout>
-      <div className="flex flex-col justify-center items-center h-[85vh]">
+      <div className="flex flex-col justify-center items-center mt-12">
         <form onSubmit={onSubmit}>
           <div className="text-center">
             <h2 className="mb-4 font-bold text-slate-600 text-xl uppercase">{data ? 'Editar curso o taller' : 'Crear nuevo curso o taller'}</h2>
@@ -120,9 +122,15 @@ export const CursoTallerPage = ({ data }) => {
               />
             </div>
 
-            <div className="mb-4">
-              <label htmlFor="descripcion" className="font-medium text-slate-400 text-sm">Descripcion del {solicitud.tipo}</label>
-              <textarea id="descripcion" className="shadow-sm mt-1 p-2 border border-slate-300 focus:border-blue-500 rounded-md focus:ring-blue-500 w-full text-slate-400" placeholder="Escribe la descripción aquí..." value={solicitud.descripcion || ''} onChange={(e) => setSolicitud({ ...solicitud, descripcion: e.target.value })} />
+            <div className="mb-6 max-w-[800px]">
+              <label className="block font-medium text-slate-400 text-sm mb-2">Descripción del {solicitud.tipo}</label>
+              <RichTextEditor
+                value={solicitud.descripcion || ''}
+                onChange={(html) => setSolicitud({ ...solicitud, descripcion: html })}
+              />
+              <p className="mt-1 text-xs text-slate-400">
+                Puedes usar negritas, cursivas y listas para formatear tu texto.
+              </p>
             </div>
 
             <button className={`disabled:bg-slate-600 px-4 py-2 rounded-md font-bold text-white uppercase transition-all ${data ? 'bg-amber-500 hover:bg-amber-600' : 'bg-blue-500 hover:bg-blue-700'}`} >

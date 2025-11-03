@@ -27,7 +27,7 @@ export const InputArray = ({ onTagsChange, label = '', tagsDefault = [] }) => {
 
   return (
     <div className="input-array-container">
-      <div className="flex flex-wrap gap-2 mb-2 max-w-[650px]">
+      <div className="flex flex-wrap gap-2 mb-2 max-w-[850px]">
         {tags.map((tag, index) => (
           <div key={index} className="flex items-center bg-gray-200 px-2 py-1 rounded-2xl text-gray-700 text-xs tag-item">
             {tag}

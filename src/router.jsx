@@ -13,6 +13,7 @@ import { ValidarDocumento } from "./pages/validarDocumento"
 import { CursoTallerPage } from "./pages/cursoTallerPage"
 import { ListarCursosyTallers } from "./pages/listarCursosyTallers"
 import { EditarCursoyTaller } from "./pages/editarCursoyTaller"
+import { CursoTallersinglePage } from "./pages/cursoTallersinglePage"
 
 // Componente para rutas protegidas
 const ProtectedRoute = ({ children }) => {
@@ -81,6 +82,11 @@ export const Router = () => {
       <Route path="/" element={
         <PublicRoute>
           <ListarCursosyTallers />
+        </PublicRoute>
+      } />
+      <Route path="/curso-taller/:id" element={
+        <PublicRoute>
+          <CursoTallersinglePage />
         </PublicRoute>
       } />
       {/* Ruta pública para validar documentos */}
