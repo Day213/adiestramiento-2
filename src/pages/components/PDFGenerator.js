@@ -1,9 +1,13 @@
 import jsPDF, { GState } from "jspdf";
-import mebreteImage from "/mebrete.jpg";
+import mebreteImage from "/mebrete.png";
 import americaFirma from "/america.png";
 import joseFirma from "/jose.png";
 import kikiFirma from "/kiki.png";
 import footer from "/footer.jpg";
+import logo_unefm from "/logo_unefm.png";
+import emblema from "/emblema.png";
+import ministerio from "/ministerio.png";
+import background from "/background.png";
 
 export const generatePDFsForParticipants = (formData) => {
   console.log("generatePDFsForParticipants called with formData:", formData);
@@ -16,19 +20,29 @@ export const generatePDFsForParticipants = (formData) => {
   formData.participante.forEach((participant, index) => {
     console.log(`Generating PDF for participant: ${participant.name}`);
 
-    const doc = new jsPDF();
+    const doc = new jsPDF({ orientation: "l" });
+
+    // Agregar la imagen de fondo solo a la primera página
+    doc.addImage(
+      background,
+      "PNG",
+      0,
+      0,
+      doc.internal.pageSize.getWidth(),
+      doc.internal.pageSize.getHeight()
+    );
 
     // Agrega la imagen 'mebreteImage' al PDF.
     // Los números representan:
     // 10: posición X (horizontal) desde la izquierda
     // 10: posición Y (vertical) desde arriba
-    // 150: ancho de la imagen en el PDF
+    // 180: ancho de la imagen en el PDF
     // 25: alto de la imagen en el PDF
-    doc.addImage(mebreteImage, "JPEG", 20, 5, 150, 30);
+    doc.addImage(mebreteImage, "JPEG", 20, 1, 200, 30);
 
     // Agregar el QR en la parte superior derecha, absoluto, sin afectar el diseño
     if (participant.qr) {
-      doc.addImage(participant.qr, "PNG", 170, 5, 30, 30);
+      doc.addImage(participant.qr, "PNG", 18, 42, 40, 40);
       doc.setFontSize(8);
       doc.saveGraphicsState();
       doc.setGState(new GState({ opacity: 0.5 }));
@@ -36,9 +50,7 @@ export const generatePDFsForParticipants = (formData) => {
       doc.restoreGraphicsState();
     }
 
-    doc.setFontSize(12);
-    doc.setFont(undefined, "bold");
-    doc.text("CONSTANCIA", 105, 60, { align: "center" });
+    doc.setFontSize(17);
 
     const formattedDate = new Date(formData.fecha_inicial).toLocaleString(
       "es-ES",
@@ -50,67 +62,91 @@ export const generatePDFsForParticipants = (formData) => {
     );
     doc.setFont(undefined, "normal");
     doc.setLineHeightFactor(1.5); // Establece un interlineado mayor
-    const content = `Por medio de la presente se certifica que el Ciudadano (a): ${capitalizeWords(
-      participant.name
-    )}, Titular de la Cedula de Identidad N°: ${
-      participant.cedula
-    }, En calidad de PARTICIPANTE ha culminado exitosamente el TALLER: ${
-      formData.nombre_solicitud
-    } con una duración de ${
-      formData.duracion
-    } y celebrado de la fecha inicial ${formattedDate} realizado en ${
-      formData.instalaciones
-    }.`;
-    doc.text(content, 20, 70, { align: "left", maxWidth: 170 });
+    const content = `Universidad Nacional Experimental Francisco de Miranda Vicerrectorado Administrativo Dirección de Recursos Humanos Departamento de Adiestramiento`;
+    doc.text(content, 140, 50, { align: "center", maxWidth: 150 });
 
+    doc.setFont(undefined, "bold");
+    doc.text("Otorga el presente certificado a:", 140, 80, { align: "center" });
+
+    doc.setFont(undefined, "bolditalic");
+    doc.text(participant.name, 140, 95, { align: "center" });
+
+    doc.setFont(undefined, "bolditalic");
+    doc.text(`C.I: ${participant.cedula}`, 140, 105, { align: "center" });
+
+    doc.setFontSize(12);
+    doc.setFont(undefined, "normal");
     doc.text(
-      `
-      \n\nConstancia que se emite a los ${
-        formData.dia_emision.split("-")[2]
-      } días del mes de ${new Date(formData.dia_emision).toLocaleString(
-        "es-ES",
-        {
-          month: "long",
-        }
-      )} de ${formData.dia_emision.split("-")[0]}.`,
-      105,
-      100,
-      { align: "center" }
+      `En calidad de PARTICIPANTE en el taller: ${
+        formData.nombre_solicitud
+      } (MODALIDAD PRESENCIAL). Evento realizado en ${
+        formData.instalaciones
+      } el día ${new Date(formData.dia_emision).toLocaleString("es-ES", {
+        day: "2-digit",
+      })} de ${new Date(formData.dia_emision).toLocaleString("es-ES", {
+        month: "long",
+      })} de ${new Date(formData.dia_emision).getFullYear()}. Duración: ${
+        formData.duracion
+      }`,
+      20,
+      120,
+      { align: "left", maxWidth: 250 }
     );
 
     doc.setFont(undefined, "normal");
-    doc.addImage(kikiFirma, "PNG", 20, 135, 45, 25);
-    doc.text("_________________________", 20, 160);
-    doc.text("Licda. Kikitza Galanos", 20, 165);
-    doc.text("Directora de Recursos Humanos", 20, 170);
+    doc.addImage(kikiFirma, "PNG", 125, 170, 45, 25);
+    doc.text("_________________________", 120, 188);
+    doc.setFontSize(12);
+    doc.setFont(undefined, "bold");
+    doc.text("Licdo. José Ramírez", 128, 158);
+    doc.setFontSize(10);
+    doc.setFont(undefined, "normal");
+    doc.text("Vicerrector Administrativo UNEFM", 148, 162, {
+      align: "center",
+      maxWidth: 50,
+    });
 
-    doc.addImage(joseFirma, "PNG", 120, 135, 40, 20);
-    doc.text("_________________________", 120, 160);
-    doc.text("Licdo. José Ramírez", 120, 165);
-    doc.text("Vicerrector Administrativo UNEFM", 120, 170);
+    doc.setFont(undefined, "normal");
+    doc.addImage(joseFirma, "PNG", 125, 130, 45, 25);
+    doc.text("_____________________________", 120, 152);
+    doc.setFontSize(12);
+    doc.setFont(undefined, "bold");
+    doc.text("Licda. Kikitza Galanos", 128, 194);
+    doc.setFontSize(10);
+    doc.setFont(undefined, "normal");
+    doc.text("Directora de Recursos Humanos", 150, 200, {
+      align: "center",
+      maxWidth: 50,
+    });
 
-    doc.addImage(americaFirma, "PNG", 80, 190, 40, 20);
-    doc.text("_________________________", 70, 210);
-    doc.text("Licda. America Colina", 79, 215);
-    doc.text("Jefe del departamento de Adiestramiento y Desarrollo", 50, 220);
+    doc.setFontSize(12);
+    doc.addImage(americaFirma, "PNG", 30, 170 - 20, 40, 20);
+    doc.text("_________________________", 20, 188 - 20);
+    doc.setFontSize(12);
+    doc.setFont(undefined, "bold");
+    doc.text("Licda. America Colina", 30, 194 - 20);
 
-    doc.addImage(footer, "JPEG", 20, 275, 180, 18);
+    doc.setFontSize(10);
+    doc.setFont(undefined, "normal");
+    doc.text(
+      "Jefe del departamento de Adiestramiento y Desarrollo",
+      50,
+      200 - 20,
+      {
+        align: "center",
+        maxWidth: 50,
+      }
+    );
 
     // Agregar una nueva página para los detalles del programa
     doc.addPage();
 
-    // Agregar encabezado con el logo
-    doc.addImage(mebreteImage, "JPEG", 20, 10, 150, 30);
-    if (participant.qr) {
-      doc.addImage(participant.qr, "PNG", 170, 5, 30, 30);
-    }
-
-    doc.setFontSize(12);
+    doc.setFontSize(17);
     doc.setFont(undefined, "bold");
     doc.text("CONTENIDO", 20, 55);
 
     // Agregar lista con el contenido del programa
-    doc.setFontSize(12);
+    doc.setFontSize(15);
     doc.setFont(undefined, "normal");
     doc.setLineHeightFactor(1.5); // Establece un interlineado mayor
     let y = 65;
@@ -126,8 +162,8 @@ export const generatePDFsForParticipants = (formData) => {
     });
 
     // Agregar tabla de registro en la esquina inferior derecha
-    const tableX = 100; // Posición X de la tabla
-    const tableY = 260; // Posición Y de la tabla
+    const tableX = 190; // Posición X de la tabla
+    const tableY = 260 - 70; // Posición Y de la tabla
     const cellWidth = 30;
     const cellHeight = 8;
 
