@@ -12,6 +12,7 @@ export const Captcha = forwardRef(({ onValidate }, ref) => {
   const inputRef = useRef(null)
 
   useImperativeHandle(ref, () => ({
+    validate: () => validate(),
     resetCaptcha: () => {
       setCaptcha(generarCaptcha())
       setCaptchaError('')
@@ -50,7 +51,7 @@ export const Captcha = forwardRef(({ onValidate }, ref) => {
       </label>
       <input
         type="number"
-        className="p-2 border border-gray-300 rounded w-full"
+        className="bg-white p-2 border border-gray-300 rounded w-full"
         value={captcha.respuesta}
         onChange={handleChange}
         ref={inputRef}

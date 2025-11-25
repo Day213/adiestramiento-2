@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react'
 import { Layout } from '../components/layout'
 import { supabase } from '../supabase'
 import { sendEmailSolicitud } from '../sendEmail'
+import { Captcha } from '../components/Captcha'
 
 export const EnviarSolicitud = () => {
   const [loading, setLoading] = useState(false)
@@ -15,30 +16,15 @@ export const EnviarSolicitud = () => {
     tema: ''
   })
   const [mensaje, setMensaje] = useState('')
-  const [captcha, setCaptcha] = useState({
-    num1: Math.floor(Math.random() * 10),
-    num2: Math.floor(Math.random() * 10),
-    respuesta: ''
-  })
-  const [captchaError, setCaptchaError] = useState('')
-  const captchaInputRef = useRef(null)
+  const captchaRef = useRef(null)
 
   const handleChange = (e) => {
     const { id, value } = e.target
     setForm(prev => ({ ...prev, [id]: value }))
   }
 
-  const handleCaptchaChange = (e) => {
-    setCaptcha(prev => ({ ...prev, respuesta: e.target.value }))
-  }
-
   const handleSubmit = async () => {
-    setCaptchaError('')
-    // Validar captcha
-    if (parseInt(captcha.respuesta) !== captcha.num1 + captcha.num2) {
-      setCaptchaError('Respuesta incorrecta, intenta de nuevo.')
-      setCaptcha(prev => ({ ...prev, respuesta: '' }))
-      if (captchaInputRef.current) captchaInputRef.current.focus()
+    if (!captchaRef.current.validate()) {
       return false
     }
 
@@ -92,11 +78,7 @@ export const EnviarSolicitud = () => {
       })
 
       // Nuevo captcha tras envío exitoso
-      setCaptcha({
-        num1: Math.floor(Math.random() * 10),
-        num2: Math.floor(Math.random() * 10),
-        respuesta: ''
-      })
+      captchaRef.current.resetCaptcha()
 
       return true
     } catch (error) {
@@ -245,22 +227,8 @@ export const EnviarSolicitud = () => {
                 required
               />
             </div>
-            {/* Captcha simple */}
             <div className="flex flex-col gap-2 mt-4">
-              <label className="font-bold text-slate-500 text-xs uppercase">
-                Captcha: ¿Cuánto es {captcha.num1} + {captcha.num2}?
-              </label>
-              <input
-                type="number"
-                className="p-2 border border-gray-300 rounded w-full"
-                value={captcha.respuesta}
-                onChange={handleCaptchaChange}
-                ref={captchaInputRef}
-                required
-                min="0"
-                placeholder="Respuesta"
-              />
-              {captchaError && <span className="text-red-500 text-sm">{captchaError}</span>}
+              <Captcha ref={captchaRef} />
             </div>
             <div className="mt-6">
               <button

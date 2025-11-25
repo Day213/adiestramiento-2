@@ -2,6 +2,7 @@ import React from "react"
 import { Layout } from "../components/layout"
 import { FileText } from "../../public/fileText"
 import { Trash } from "../../public/trash"
+import { Link } from "react-router-dom"
 
 
 import { useState, useEffect } from "react"
@@ -80,9 +81,30 @@ export const ListarSolicitud = () => {
     }
     const fetchCursosYTalleres = async () => {
       setLoading(true)
-      const { data, error } = await supabase.from("cursos_talleres").select("*").order('fecha_emision', { ascending: false })
+      const { data: cursosData, error: cursosError } = await supabase.from("cursos_talleres").select("*").order('fecha_emision', { ascending: false })
 
-      if (!error) setCursosYTalleres(data)
+      if (cursosError) {
+        console.error('Error fetching cursos_talleres:', cursosError)
+        setLoading(false)
+        return
+      }
+
+      const cursosWithCenso = await Promise.all(cursosData.map(async (curso) => {
+        const { count, error: censoError } = await supabase
+          .from('censo')
+          .select('id', { count: 'exact' })
+          .eq('curso_taller', curso.id)
+
+        if (censoError) {
+          console.error(`Error fetching censo for curso ${curso.id}:`, censoError)
+          return { ...curso, censo_count: 0 }
+        }
+        return { ...curso, censo_count: count }
+      }))
+
+
+
+      setCursosYTalleres(cursosWithCenso)
       setLoading(false)
     }
 
@@ -110,6 +132,7 @@ export const ListarSolicitud = () => {
     { label: "Fecha de emisión", key: "fecha_emision" },
     { label: "Instructor", key: "dictado_por" },
     { label: "Temas", key: "temas" },
+    { label: "Censados", key: "censo_count" },
     { label: "Visible", key: "estatus" },
     { label: "Acciones", key: "acciones" },
   ]
@@ -303,6 +326,11 @@ export const ListarSolicitud = () => {
         </td>
         <td className="px-4 py-2 border-slate-300 border-b capitalize"><span className="max-w-[200px] line-clamp-1">{item.dictado_por}</span></td>
         <td className="px-4 py-2 border-slate-300 border-b">{item.temas.length}</td>
+        <td className="px-4 py-2 border-slate-300 border-b">
+          <Link to={`/censados/${item.id}`} className="font-bold text-blue-600 hover:underline text-nowrap">
+            {item.censo_count} personas
+          </Link>
+        </td>
         <td className="px-4 py-2 border-slate-300 border-b">{item.estatus ? 'Si' : 'No'}</td>
         <td className="px-4 py-2 border-slate-300 border-b">
           <CourseActionsDropdown item={item} handleChangeEstatus={handleChangeEstatus} handleDeleteCurso={handleChangeEstatus} isDeleting={isDeleting} deletingId={deletingId} />
@@ -318,7 +346,7 @@ export const ListarSolicitud = () => {
       ) : (
         <div className="bg-blue-50 shadow-xl p-4 rounded-md h-[83vh] overflow-y-auto">
           <div className="mb-4 font-semibold text-blue-900"></div>
-          <Tab.Group 
+          <Tab.Group
             defaultIndex={activeTab === 'solicitudes' ? 0 : 1}
             onChange={(index) => {
               setSearchParams({ tab: index === 0 ? 'solicitudes' : 'cursos' })

@@ -14,6 +14,7 @@ import { CursoTallerPage } from "./pages/cursoTallerPage"
 import { ListarCursosyTallers } from "./pages/listarCursosyTallers"
 import { EditarCursoyTaller } from "./pages/editarCursoyTaller"
 import { CursoTallersinglePage } from "./pages/cursoTallersinglePage"
+import { CensadosPage } from "./pages/censadosPage"
 
 // Componente para rutas protegidas
 const ProtectedRoute = ({ children }) => {
@@ -112,6 +113,12 @@ export const Router = () => {
       <Route path="/editar-curso-taller/:id" element={
         <ProtectedRoute>
           <EditarCursoyTaller />
+        </ProtectedRoute>
+      } />
+
+      <Route path="/censados/:cursoId" element={
+        <ProtectedRoute>
+          <CensadosPage />
         </ProtectedRoute>
       } />
 
