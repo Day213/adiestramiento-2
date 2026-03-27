@@ -1,20 +1,20 @@
 import React, { useState, useEffect } from 'react'
 import { SignJWT } from 'jose'  // Changed from 'jsonwebtoken'
 import { Layout } from '../components/layout'
-import { useNavigate, useParams } from 'react-router-dom'
-import { supabase } from '../supabase'
+import { useNavigate } from 'react-router-dom'
+
 import { InputArray } from './components/inputArray'
 import { generatePDFsForParticipants } from './components/PDFGenerator'
 import { generateQRCodeDataUrl } from './components/QRCodeGenerator'
 import { PaticipantesSection } from './components/paticipantesSection'
 
 
+
+
 export const CrearCertificado = () => {
   const navigate = useNavigate()
-  const { id: idParam } = useParams()
-  const [id, tipo] = idParam.split('-')
-  const [solicitud, setSolicitud] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [solicitud, setSolicitud] = useState({ tipo_solicitud: 'curso/taller' })
+  const [loading, setLoading] = useState(false)
   const [participantes, setParticipantes] = useState([{ name: "", cedula: "", folio: "", libro: "", reglon: "" },])
 
   const [formData, setFormData] = useState({
@@ -23,7 +23,7 @@ export const CrearCertificado = () => {
     fecha_inicial: new Date().toISOString().split('T')[0],
     instalaciones: 'Este instituto',
     dia_emision: new Date().toISOString().split('T')[0],
-    tipo_solicitud: '',
+    tipo_solicitud: 'curso/taller',
     contenido: [],
     participante: [],
   })
@@ -35,70 +35,8 @@ export const CrearCertificado = () => {
     }))
   }, [participantes])
 
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true)
-      let data = null
-      let error = null
-
-      if (tipo === 'solicitudes') {
-        const response = await supabase
-          .from('solicitudes')
-          .select('*')
-          .eq('id', id)
-          .single()
-        data = response.data
-        error = response.error
-
-
-      } else if (tipo === 'cursosytalleres') {
-        const response = await supabase
-          .from('cursos_talleres')
-          .select('*')
-          .eq('id', id)
-          .single()
-        data = response.data
-        error = response.error
-
-        console.log(data)
-        if (data) {
-          // Mapear los campos de cursos_talleres a la estructura esperada por formData
-          data = {
-            ...data,
-            tema_solicitante: data.titulo,
-            tipo_solicitud: 'curso/taller',
-            fecha_inicial: data.fecha_inicio,
-            duracion: `${data.tiempo} ${data.tipo_tiempo}`,
-            contenido: data.temas,
-            dia_emision: data.fecha_emision,
-          }
-        }
-      }
-
-      if (!error) {
-        setSolicitud(data)
-        setFormData((prevData) => ({
-          ...prevData,
-          nombre_solicitud: data?.tema_solicitante || '',
-          participante: data?.participantes || [],
-          duracion: data?.duracion || '',
-          contenido: data?.contenido || [],
-          tipo_solicitud: data?.tipo_solicitud || '',
-          fecha_inicial: data?.dia_emision || ''
-        }))
-      } else {
-        console.error('Error fetching data:', error)
-      }
-
-      setLoading(false)
-    }
-    fetchData()
-  }, [id, tipo])
-
   const handleSubmit = async (e) => {
     e.preventDefault()
-    // console.log(formData)
   }
 
   const handleDuracionChange = (value, type) => {
@@ -109,11 +47,8 @@ export const CrearCertificado = () => {
   }
 
   const handleGeneratePDFs = async () => {
-    // Genera un código único y token JWT para cada participante
     const participantesConQR = await Promise.all(formData.participante.map(async (p) => {
       const uniqueId = `CERT-${p.cedula}-${Date.now()}`
-
-      // Generate JWT token using jose
       const secret = new TextEncoder().encode('adiestramiento_certificados_secret')
       const token = await new SignJWT({
         id: uniqueId,
@@ -126,139 +61,168 @@ export const CrearCertificado = () => {
         .setProtectedHeader({ alg: 'HS256' })
         .setIssuedAt()
         .sign(secret)
-
-      // Usar el token JWT como datos para el código QR
       const qrDataUrl = await generateQRCodeDataUrl(token)
-
-      return {
-        ...p,
-        qr: qrDataUrl,
-        codigo: uniqueId,
-        token
-      }
+      return { ...p, qr: qrDataUrl, codigo: uniqueId, token }
     }))
-
-    console.log('Participantes con QR y JWT:', participantesConQR)
     generatePDFsForParticipants({ ...formData, participante: participantesConQR })
   }
 
-
   return (
     <Layout>
-      <div className="flex justify-center items-center p-4 w-full h-[80vh]">
-        <div className="shadow-xl p-4 rounded-md w-[50vw]">
-          <div className="flex justify-between items-center text-center">
-            <h1 className="font-bold text-slate-600 text-xl uppercase">Generar certificados</h1>
-            <button onClick={() => navigate(-1)} className="bg-slate-200 p-1 px-3 rounded-md text-slate-600 uppercase transition-colors duration-200">
-              volver
-            </button>
+      <div className="mx-auto py-8 max-w-5xl">
+        <div className="bg-white shadow-2xl rounded-2xl overflow-hidden border border-slate-100">
+          <div className="bg-slate-900 px-8 py-6 text-white">
+            <h1 className="font-extrabold text-3xl tracking-tight uppercase">
+              Generar Certificados
+            </h1>
+            <p className="mt-1 text-slate-400 text-sm">
+              Complete la información para generar automáticamente los certificados para los participantes.
+            </p>
           </div>
-          <div className="mt-4">
+
+          <div className="p-8">
             {loading ? (
-              <p>Cargando...</p>
+              <div className="flex justify-center items-center h-64">
+                <div className="border-4 border-blue-500 border-t-transparent rounded-full w-12 h-12 animate-spin"></div>
+              </div>
             ) : (
-              <div>
-                <form className="mt-4" onSubmit={handleSubmit}>
-                  <div className="pr-4 h-[60vh] overflow-y-auto">
-                    <div className="mb-4">
-                      <label className="block mb-2 font-bold text-gray-700 text-sm" htmlFor="nombre">
+              <form className="space-y-10" onSubmit={handleSubmit}>
+                {/* Sección Información General */}
+                <div className="space-y-6">
+                  <div className="flex items-center gap-3 border-slate-200 border-b pb-2">
+                    <div className="bg-blue-600 rounded-lg w-2 h-6"></div>
+                    <h2 className="font-bold text-slate-800 text-xl">Información del Evento</h2>
+                  </div>
+
+                  <div className="gap-6 grid grid-cols-1 md:grid-cols-2">
+                    <div className="md:col-span-2">
+                      <label className="block mb-1.5 font-semibold text-slate-700 text-sm" htmlFor="nombre">
                         Nombre del {solicitud.tipo_solicitud}
                       </label>
                       <input
+                        id="nombre"
                         type="text"
+                        placeholder="Ej: Taller de Excel Avanzado"
                         value={formData.nombre_solicitud}
                         onChange={(e) => setFormData({ ...formData, nombre_solicitud: e.target.value })}
-                        className="shadow px-3 py-2 border rounded focus:shadow-outline focus:outline-none w-full text-gray-700 leading-tight appearance-none"
+                        className="bg-blue-50 px-4 py-2.5 border-2 border-blue-200 focus:border-blue-500 rounded-xl focus:ring-4 focus:ring-blue-500/10 w-full text-slate-900 transition-all outline-none placeholder:text-blue-300 font-semibold"
                       />
                     </div>
-                    <div className="mb-4 w-full">
-                      <div className="flex items-center gap-4 w-full">
-                        <div className="w-full">
-                          <label className="block mb-2 font-bold text-gray-700 text-sm" htmlFor="duracion">
-                            Horas
-                          </label>
-                          <input
-                            type="number"
-                            value={formData.duracion.split(' ')[0] || ''}
-                            onChange={(e) => handleDuracionChange(e.target.value, formData.duracion.split(' ')[1] || 'horas')}
-                            className="shadow px-3 py-2 border rounded focus:shadow-outline focus:outline-none w-full text-gray-700 leading-tight appearance-none"
-                          />
-                        </div>
-                        <div className="w-1/4">
-                          <label className="block mb-2 font-bold text-gray-700 text-sm" htmlFor="duracion">
-                            Tiempo
-                          </label>
-                          <select
-                            value={formData.duracion.split(' ')[1] || 'horas'}
-                            onChange={(e) => handleDuracionChange(formData.duracion.split(' ')[0] || '', e.target.value)}
-                            className="shadow px-3 py-2 border rounded focus:shadow-outline focus:outline-none w-full text-gray-700 leading-tight appearance-none"
-                          >
-                            <option value="horas">Horas</option>
-                            <option value="dias">Días</option>
-                            <option value="meses">Meses</option>
-                            <option value="años">Años</option>
-                          </select>
-                        </div>
+
+                    <div>
+                      <label className="block mb-1.5 font-semibold text-slate-700 text-sm" htmlFor="duracion">
+                        Duración
+                      </label>
+                      <div className="flex gap-2">
+                        <input
+                          id="duracion"
+                          type="number"
+                          placeholder="Valor"
+                          value={formData.duracion.split(' ')[0] || ''}
+                          onChange={(e) => handleDuracionChange(e.target.value, formData.duracion.split(' ')[1] || 'horas')}
+                          className="bg-blue-50 px-4 py-2.5 border-2 border-blue-200 focus:border-blue-500 rounded-xl focus:ring-4 focus:ring-blue-500/10 w-full text-slate-900 transition-all outline-none placeholder:text-blue-300 font-semibold"
+                        />
+                        <select
+                          value={formData.duracion.split(' ')[1] || 'horas'}
+                          onChange={(e) => handleDuracionChange(formData.duracion.split(' ')[0] || '', e.target.value)}
+                          className="bg-blue-50 px-4 py-2.5 border-2 border-blue-200 focus:border-blue-500 rounded-xl focus:ring-4 focus:ring-blue-500/10 text-slate-900 transition-all outline-none font-semibold cursor-pointer"
+                        >
+                          <option value="horas">Horas</option>
+                          <option value="dias">Días</option>
+                          <option value="meses">Meses</option>
+                          <option value="años">Años</option>
+                        </select>
                       </div>
                     </div>
-                    <div className="flex gap-4 mb-4">
-                      <div className="w-1/2">
-                        <label className="block mb-2 font-bold text-gray-700 text-sm" htmlFor="fecha_inicial">
-                          Fecha Inicial
-                        </label>
-                        <input
-                          type="date"
-                          value={formData.fecha_inicial}
-                          onChange={(e) => setFormData({ ...formData, fecha_inicial: e.target.value })}
-                          className="shadow px-3 py-2 border rounded focus:shadow-outline focus:outline-none w-full text-gray-700 leading-tight appearance-none"
-                        />
-                      </div>
-                      <div className="w-1/2">
-                        <label className="block mb-2 font-bold text-gray-700 text-sm" htmlFor="fecha_inicial">
-                          Fecha de emisión
-                        </label>
-                        <input
-                          type="date"
-                          value={formData.dia_emision}
-                          onChange={(e) => setFormData({ ...formData, dia_emision: e.target.value })}
-                          className="shadow px-3 py-2 border rounded focus:shadow-outline focus:outline-none w-full text-gray-700 leading-tight appearance-none"
-                        />
-                      </div>
-                    </div>
-                    <div className="mb-4">
-                      <label className="block mb-2 font-bold text-gray-700 text-sm" htmlFor="instalaciones">
+
+                    <div>
+                      <label className="block mb-1.5 font-semibold text-slate-700 text-sm" htmlFor="instalaciones">
                         Instalaciones
                       </label>
                       <input
+                        id="instalaciones"
                         type="text"
+                        placeholder="Ubicación"
                         value={formData.instalaciones}
                         onChange={(e) => setFormData({ ...formData, instalaciones: e.target.value })}
-                        className="shadow px-3 py-2 border rounded focus:shadow-outline focus:outline-none w-full text-gray-700 leading-tight appearance-none"
+                        className="bg-blue-50 px-4 py-2.5 border-2 border-blue-200 focus:border-blue-500 rounded-xl focus:ring-4 focus:ring-blue-500/10 w-full text-slate-900 transition-all outline-none placeholder:text-blue-300 font-semibold"
                       />
                     </div>
-                    <div className="mb-4">
-                      <label className="block mb-2 font-bold text-gray-700 text-sm" htmlFor="contenido">
-                        Contenido
+
+                    <div>
+                      <label className="block mb-1.5 font-semibold text-slate-700 text-sm" htmlFor="fecha_inicial">
+                        Fecha Inicial
                       </label>
-                      <InputArray
-                        onTagsChange={(newTags) => setFormData({ ...formData, contenido: newTags })}
-                        label="contenido"
-                        tagsDefault={formData.contenido}
+                      <input
+                        id="fecha_inicial"
+                        type="date"
+                        value={formData.fecha_inicial}
+                        onChange={(e) => setFormData({ ...formData, fecha_inicial: e.target.value })}
+                        className="bg-blue-50 px-4 py-2.5 border-2 border-blue-200 focus:border-blue-500 rounded-xl focus:ring-4 focus:ring-blue-500/10 w-full text-slate-900 transition-all outline-none font-semibold"
                       />
                     </div>
+
+                    <div>
+                      <label className="block mb-1.5 font-semibold text-slate-700 text-sm" htmlFor="dia_emision">
+                        Fecha de emisión
+                      </label>
+                      <input
+                        id="dia_emision"
+                        type="date"
+                        value={formData.dia_emision}
+                        onChange={(e) => setFormData({ ...formData, dia_emision: e.target.value })}
+                        className="bg-blue-50 px-4 py-2.5 border-2 border-blue-200 focus:border-blue-500 rounded-xl focus:ring-4 focus:ring-blue-500/10 w-full text-slate-900 transition-all outline-none font-semibold"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Sección Contenido */}
+                <div className="space-y-6">
+                  <div className="flex items-center gap-3 border-slate-200 border-b pb-2">
+                    <div className="bg-amber-500 rounded-lg w-2 h-6"></div>
+                    <h2 className="font-bold text-slate-800 text-xl">Temario / Contenido</h2>
+                  </div>
+                  <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                    <InputArray
+                      onTagsChange={(newTags) => setFormData({ ...formData, contenido: newTags })}
+                      label="temas"
+                      tagsDefault={formData.contenido}
+                    />
+                  </div>
+                </div>
+
+                {/* Sección Participantes */}
+                <div className="space-y-6">
+                  <div className="flex items-center gap-3 border-slate-200 border-b pb-2">
+                    <div className="bg-emerald-500 rounded-lg w-2 h-6"></div>
+                    <h2 className="font-bold text-slate-800 text-xl">Participantes</h2>
+                  </div>
+                  <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
                     <PaticipantesSection participantes={participantes} setParticipantes={setParticipantes} />
                   </div>
+                </div>
 
-
+                {/* Footer del Formulario */}
+                <div className="pt-8 w-full">
                   <button
                     type="button"
                     onClick={handleGeneratePDFs}
-                    className="bg-blue-500 hover:bg-blue-700 mt-6 px-4 py-2 rounded w-full font-bold text-white uppercase transition-colors duration-200"
+                    className="group relative flex justify-center items-center bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-2xl w-full font-bold text-white text-lg transition-all transform active:scale-[0.98] overflow-hidden shadow-lg shadow-blue-500/30"
                   >
-                    Descargar PDFs por Participante
+                    <div className="top-0 left-0 absolute bg-gradient-to-r from-white/0 via-white/10 to-white/0 w-full h-full -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                    <span className="flex items-center gap-2">
+                      Descargar Certificados en PDF
+                      <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                      </svg>
+                    </span>
                   </button>
-                </form>
-              </div>
+                  <p className="mt-4 text-center text-slate-400 text-xs">
+                    Se generará un archivo PDF individual con código QR verificado para cada participante.
+                  </p>
+                </div>
+              </form>
             )}
           </div>
         </div>
