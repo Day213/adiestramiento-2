@@ -1,7 +1,7 @@
 import jsPDF, { GState } from "jspdf";
 import mebreteImage from "/mebrete.png";
 import americaFirma from "/america.png";
-import joseFirma from "/jose.png";
+import NataliFirma from "/jose.png";
 import kikiFirma from "/kiki.png";
 import footer from "/footer.jpg";
 import logo_unefm from "/logo_unefm.png";
@@ -39,16 +39,6 @@ export const generatePDFsForParticipants = (formData) => {
     // 180: ancho de la imagen en el PDF
     // 25: alto de la imagen en el PDF
     doc.addImage(mebreteImage, "JPEG", 20, 1, 200, 30);
-
-    // Agregar el QR en la parte superior derecha, absoluto, sin afectar el diseño
-    if (participant.qr) {
-      doc.addImage(participant.qr, "PNG", 18, 42, 40, 40);
-      doc.setFontSize(8);
-      doc.saveGraphicsState();
-      doc.setGState(new GState({ opacity: 0.5 }));
-      doc.text(participant.token, 22, 260, { align: "left", maxWidth: 165 });
-      doc.restoreGraphicsState();
-    }
 
     doc.setFontSize(17);
 
@@ -94,8 +84,8 @@ export const generatePDFsForParticipants = (formData) => {
     );
 
     doc.setFont(undefined, "normal");
-    doc.addImage(kikiFirma, "PNG", 125, 170, 45, 25);
-    doc.text("_________________________", 120, 188);
+    doc.addImage(NataliFirma, "PNG", 125, 130, 45, 25);
+    doc.text("_______________________", 120, 152);
     doc.setFontSize(12);
     doc.setFont(undefined, "bold");
     doc.text("Licdo. José Ramírez", 128, 158);
@@ -107,31 +97,31 @@ export const generatePDFsForParticipants = (formData) => {
     });
 
     doc.setFont(undefined, "normal");
-    doc.addImage(joseFirma, "PNG", 125, 130, 45, 25);
-    doc.text("_____________________________", 120, 152);
+    doc.addImage(kikiFirma, "PNG", 220, 130, 45, 25);
+    doc.text("_________________________", 216, 152);
     doc.setFontSize(12);
     doc.setFont(undefined, "bold");
-    doc.text("Licda. Kikitza Galanos", 128, 194);
+    doc.text("Dra. Natali Galicia", 222, 160);
     doc.setFontSize(10);
     doc.setFont(undefined, "normal");
-    doc.text("Directora de Recursos Humanos", 150, 200, {
+    doc.text("Directora de Recursos Humanos", 240, 165, {
       align: "center",
       maxWidth: 50,
     });
 
     doc.setFontSize(12);
-    doc.addImage(americaFirma, "PNG", 30, 170 - 20, 40, 20);
-    doc.text("_________________________", 20, 188 - 20);
+    doc.addImage(americaFirma, "PNG", 30, 155 - 20, 40, 20);
+    doc.text("_________________________", 20, 171 - 20);
     doc.setFontSize(12);
     doc.setFont(undefined, "bold");
-    doc.text("Licda. America Colina", 30, 194 - 20);
+    doc.text("Licda. America Colina", 30, 178 - 20);
 
     doc.setFontSize(10);
     doc.setFont(undefined, "normal");
     doc.text(
       "Jefe del departamento de Adiestramiento y Desarrollo",
       50,
-      200 - 20,
+      183 - 20,
       {
         align: "center",
         maxWidth: 50,
@@ -140,6 +130,19 @@ export const generatePDFsForParticipants = (formData) => {
 
     // Agregar una nueva página para los detalles del programa
     doc.addPage();
+
+    // Agregar el QR en la parte superior derecha de la segunda página
+    if (participant.qr) {
+      doc.addImage(participant.qr, "PNG", 225, 10, 70, 70);
+      doc.setFontSize(8);
+      doc.saveGraphicsState();
+      // Ajustamos la posición del token para que sea visible en la segunda página
+      doc.setFont(undefined, "bold");
+      doc.text('TOKEN DE VERIFICACIÓN', 20, 15, { align: "left" });
+      doc.setFont(undefined, "normal");
+      doc.text(participant.token, 20, 20, { align: "left", maxWidth: 200 });
+      doc.restoreGraphicsState();
+    }
 
     doc.setFontSize(17);
     doc.setFont(undefined, "bold");
