@@ -8,12 +8,11 @@ export const Layout = ({ children }) => {
   const location = useLocation()
 
   useEffect(() => {
-    setIsAuthenticated(localStorage.getItem("admin_session") === "true")
-    setIsAuthenticated(true)
+    setIsAuthenticated(localStorage.getItem("admin_session_token") !== null)
   }, [location])
 
   const handleLogout = () => {
-    localStorage.removeItem("admin_session")
+    localStorage.removeItem("admin_session_token")
     setIsAuthenticated(false)
     navigate("/")
   }
