@@ -40,22 +40,35 @@ export const CrearCertificado = () => {
   }
 
   const handleDuracionChange = (value, type) => {
+    // Validar que no sea negativo ni excesivamente grande
+    const numValue = parseInt(value);
+    if (value !== "" && (numValue < 1 || numValue > 999)) return;
+
+    let finalType = type;
+    if (numValue === 1) {
+      if (type === "horas") finalType = "hora";
+      if (type === "dias") finalType = "dia";
+      if (type === "meses") finalType = "mes";
+      if (type === "años") finalType = "año";
+    }
+
     setFormData((prevData) => ({
       ...prevData,
-      duracion: `${value} ${type}`,
+      duracion: value ? `${value} ${finalType}` : "",
     }))
   }
 
   const handleGeneratePDFs = async () => {
     const participantesConQR = await Promise.all(formData.participante.map(async (p) => {
       const uniqueId = `CERT-${p.cedula}-${Date.now()}`
-      const secret = new TextEncoder().encode('adiestramiento_certificados_secret')
+      const secret = new TextEncoder().encode(import.meta.env.VITE_CERT_SECRET || 'adiestramiento_certificados_secret')
       const token = await new SignJWT({
         id: uniqueId,
         nombre: p.name,
         nombre_curso_taller: formData.nombre_solicitud,
         cedula: p.cedula,
         duracion: formData.duracion,
+        contenido: formData.contenido,
         fecha: new Date().toISOString()
       })
         .setProtectedHeader({ alg: 'HS256' })
@@ -69,7 +82,7 @@ export const CrearCertificado = () => {
 
   return (
     <Layout>
-      <div className="mx-auto py-8 max-w-5xl">
+      <div className=" py-8">
         <div className="bg-white shadow-2xl rounded-2xl overflow-hidden border border-slate-100">
           <div className="bg-slate-900 px-8 py-6 text-white">
             <h1 className="font-extrabold text-3xl tracking-tight uppercase">
@@ -117,6 +130,8 @@ export const CrearCertificado = () => {
                         <input
                           id="duracion"
                           type="number"
+                          min="1"
+                          max="999"
                           placeholder="Valor"
                           value={formData.duracion.split(' ')[0] || ''}
                           onChange={(e) => handleDuracionChange(e.target.value, formData.duracion.split(' ')[1] || 'horas')}

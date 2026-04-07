@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, Fragment } from 'react'
 import { jwtVerify } from 'jose'
+import { Dialog, Transition, TransitionChild, DialogPanel } from '@headlessui/react'
 import { QRCodeReader } from './components/QRCodeReader'
 import { Layout } from '../components/layout'
 
@@ -8,10 +9,11 @@ export const ValidarDocumento = () => {
   const [resultado, setResultado] = useState(null)
   const [certificadoInfo, setCertificadoInfo] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const validarToken = async (token) => {
     try {
-      const secret = new TextEncoder().encode('adiestramiento_certificados_secret')
+      const secret = new TextEncoder().encode(import.meta.env.VITE_CERT_SECRET || 'adiestramiento_certificados_secret')
       const { payload } = await jwtVerify(token, secret)
       return payload
     } catch (error) {
@@ -21,16 +23,17 @@ export const ValidarDocumento = () => {
   }
 
   const handleValidar = async () => {
-    if (!codigo) {
+    const codigoLimpio = codigo.replace(/\s/g, '')
+    
+    if (!codigoLimpio) {
       setResultado('Por favor ingrese un código para validar')
       return
     }
 
     setIsLoading(true)
     try {
-      // Si el código es un JWT (comienza con 'ey' y tiene puntos)
-      if (codigo.startsWith('ey') && codigo.split('.').length === 3) {
-        const payload = await validarToken(codigo)
+      if (codigoLimpio.startsWith('ey') && codigoLimpio.split('.').length === 3) {
+        const payload = await validarToken(codigoLimpio)
         
         if (payload) {
           setCertificadoInfo({
@@ -39,15 +42,16 @@ export const ValidarDocumento = () => {
             fecha: new Date(payload.iat * 1000).toLocaleDateString(),
             duracion: payload.duracion,
             nombre_curso_taller: payload.nombre_curso_taller,
+            contenido: payload.contenido,
             id: payload.id
           })
           setResultado('✅ Certificado válido')
+          setIsModalOpen(true)
         } else {
           setResultado('❌ Código de certificado inválido')
           setCertificadoInfo(null)
         }
       } else if (codigo.startsWith('CERT-')) {
-        // Para compatibilidad con códigos antiguos
         setResultado('⚠️ Código de formato antiguo detectado')
         setCertificadoInfo({
           id: codigo,
@@ -69,95 +73,216 @@ export const ValidarDocumento = () => {
   const handleScan = (data) => {
     if (data) {
       setCodigo(data)
-      // Opcional: validar automáticamente al escanear
-      // handleValidar()
     }
   }
 
   const handleError = (err) => {
     console.error('Error al escanear el código QR:', err)
-    setResultado('❌ Error al escanear el código QR')
   }
 
   return (
     <Layout>
-      <div className="flex flex-col justify-center items-center w-full min-h-[80vh] py-8">
-        <h2 className="mb-6 font-bold text-blue-600 text-2xl text-center uppercase">Validar Certificado</h2>
-        
-        <div className="flex flex-col items-center bg-white shadow-md p-6 border-2 border-slate-100 rounded-lg w-full max-w-2xl">
-          <div className="w-full mb-6">
-            <div className="flex flex-col gap-2 w-full mb-4">
-              <label htmlFor="codigo" className="font-bold text-gray-700 text-sm">Código del documento</label>
-              <input
-                id="codigo"
-                type="text"
-                value={codigo}
-                onChange={(e) => setCodigo(e.target.value)}
-                placeholder="Ingrese el código JWT del certificado o escanee el QR"
-                className="shadow px-3 py-2 border border-slate-300 rounded focus:shadow-outline focus:outline-none w-full text-gray-700 leading-tight appearance-none"
-                disabled={isLoading}
-              />
-            </div>
-
-            <div className="mb-4">
-              <p className="text-sm text-gray-600 mb-2">O escanee el código QR:</p>
-              <div className="border-2 border-dashed border-gray-300 rounded p-2">
-                <QRCodeReader onScan={handleScan} onError={handleError} />
-              </div>
-            </div>
-
-            <button
-              onClick={handleValidar}
-              disabled={isLoading || !codigo}
-              className={`mt-2 mb-4 px-4 py-2 rounded w-full text-white uppercase transition-colors duration-200 ${
-                isLoading || !codigo ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
-              }`}
-            >
-              {isLoading ? 'Validando...' : 'Validar documento'}
-            </button>
+      <div className="flex flex-col justify-center items-center w-full min-h-[80vh] py-12 px-4">
+        {/* Header Section */}
+        <div className="text-center mb-10">
+          <div className="bg-blue-600 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-xl shadow-blue-200">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.016 11.955 11.955 0 01-1.532 11.048C4.582 18.29 7.73 20.211 11.137 21a11.955 11.955 0 002.726 0c3.407-.789 6.555-2.71 8.287-3.992a11.955 11.955 0 00-1.532-11.048z" />
+            </svg>
           </div>
-
-          {resultado && (
-            <div className="w-full">
-              <div className={`p-4 rounded-md mb-4 ${
-                resultado.includes('✅') ? 'bg-green-100 text-green-800' : 
-                resultado.includes('⚠️') ? 'bg-yellow-100 text-yellow-800' : 
-                'bg-red-100 text-red-800'
-              }`}>
-                <p className="font-semibold text-lg">{resultado}</p>
-              </div>
-
-              {certificadoInfo && (
-                <div className="bg-gray-50 p-4 rounded-md border border-gray-200">
-                  <h3 className="font-bold text-gray-800 text-lg mb-3">Información del Certificado</h3>
-                  <div className="space-y-2">
-                    {certificadoInfo.nombre_curso_taller && (
-                      <p><span className="font-semibold">Titulo:</span> {certificadoInfo.nombre_curso_taller}</p>
-                    )}
-                    {certificadoInfo.nombre && (
-                      <p><span className="font-semibold">Otorgado a:</span> {certificadoInfo.nombre}</p>
-                    )}
-                    {certificadoInfo.cedula && (
-                      <p><span className="font-semibold">Cédula:</span> {certificadoInfo.cedula}</p>
-                    )}
-                    {certificadoInfo.duracion && (
-                      <p><span className="font-semibold">Duración:</span> {certificadoInfo.duracion}</p>
-                    )}
-                    {certificadoInfo.fecha && (
-                      <p><span className="font-semibold">Fecha de emisión:</span> {certificadoInfo.fecha}</p>
-                    )}
-                    
-                    {/* {certificadoInfo.id && (
-                      <p className="text-sm text-gray-600 break-all"><span className="font-semibold">ID:</span> {certificadoInfo.id}</p>
-                    )} */}
-                    {certificadoInfo.mensaje && (
-                      <p className="text-yellow-700">{certificadoInfo.mensaje}</p>
-                    )}
+          <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">Validar Certificado</h1>
+          <p className="text-slate-500 mt-2 text-lg">Confirme la autenticidad de sus documentos digitales</p>
+        </div>
+        
+        <div className="flex flex-col items-center bg-white shadow-2xl p-8 border border-slate-100 rounded-[2.5rem] w-full max-w-2xl transform transition-all hover:shadow-blue-900/5">
+          <div className="w-full">
+            <div className="space-y-6 mb-8">
+              <div className="space-y-2">
+                <label htmlFor="codigo" className="block text-sm font-bold text-slate-700 ml-1 uppercase tracking-wider">
+                  Código del documento
+                </label>
+                <div className="relative">
+                  <input
+                    id="codigo"
+                    type="text"
+                    value={codigo}
+                    onChange={(e) => setCodigo(e.target.value)}
+                    placeholder="Ingrese el código JWT del certificado..."
+                    className="w-full px-5 py-4 bg-slate-50 border-2 border-slate-200 focus:border-blue-600 focus:bg-white rounded-2xl focus:ring-4 focus:ring-blue-500/10 transition-all outline-none text-slate-900 font-medium placeholder:text-slate-400"
+                    disabled={isLoading}
+                  />
+                  <div className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                    </svg>
                   </div>
                 </div>
-              )}
+              </div>
+
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center" aria-hidden="true">
+                  <div className="w-full border-t border-slate-100"></div>
+                </div>
+                <div className="relative flex justify-center text-sm uppercase tracking-widest font-bold">
+                  <span className="bg-white px-4 text-slate-400">o escanee el QR</span>
+                </div>
+              </div>
+
+              <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl p-4 transition-all hover:bg-slate-100/50 group">
+                <div className="aspect-video bg-black rounded-2xl overflow-hidden shadow-inner flex items-center justify-center relative">
+                   <QRCodeReader onScan={handleScan} onError={handleError} />
+                   {!codigo && (
+                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                       <div className="bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 rounded-full text-white text-xs font-bold animate-pulse">
+                         Esperando cámara...
+                       </div>
+                     </div>
+                   )}
+                </div>
+              </div>
+
+              <button
+                onClick={handleValidar}
+                disabled={isLoading || !codigo}
+                className={`w-full py-5 rounded-2xl font-bold text-lg shadow-xl transition-all active:scale-[0.98] flex items-center justify-center gap-3 ${
+                  isLoading || !codigo 
+                    ? 'bg-slate-100 text-slate-400 cursor-not-allowed border-2 border-slate-200' 
+                    : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-200'
+                }`}
+              >
+                {isLoading ? (
+                  <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                ) : (
+                  <>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Validar documento
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+
+          {resultado && !resultado.includes('✅') && (
+            <div className="w-full animate-in fade-in slide-in-from-top-4 duration-300">
+              <div className="p-5 rounded-2xl mb-6 border bg-red-50 border-red-100 text-red-800 flex items-center gap-3">
+                <span className="text-2xl">❌</span>
+                <p className="font-bold text-lg">{resultado.split(' ').slice(1).join(' ')}</p>
+              </div>
             </div>
           )}
+
+          {/* Modal de Validación Exitosa */}
+          <Transition appear show={isModalOpen} as={Fragment}>
+            <Dialog as="div" className="relative z-50" onClose={() => setIsModalOpen(false)}>
+              <TransitionChild
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0"
+                enterTo="opacity-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+              >
+                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-md" />
+              </TransitionChild>
+
+              <div className="fixed inset-0 overflow-y-auto">
+                <div className="flex min-h-full items-center justify-center p-4 text-center">
+                  <TransitionChild
+                    as={Fragment}
+                    enter="ease-out duration-300"
+                    enterFrom="opacity-0 scale-95 translate-y-4"
+                    enterTo="opacity-100 scale-100 translate-y-0"
+                    leave="ease-in duration-200"
+                    leaveFrom="opacity-100 scale-100 translate-y-0"
+                    leaveTo="opacity-0 scale-95 translate-y-4"
+                  >
+                    <DialogPanel className="w-full max-w-lg transform overflow-hidden rounded-[2.5rem] bg-white p-8 text-left align-middle shadow-2xl transition-all border border-slate-100">
+                      <div className="flex justify-between items-start mb-6">
+                        <div className="bg-emerald-500 w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg shadow-emerald-200">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                          </svg>
+                        </div>
+                        <button 
+                          onClick={() => setIsModalOpen(false)}
+                          className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-slate-400"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+
+                      <div className="mb-8">
+                        <h3 className="text-2xl font-black text-slate-900 leading-tight">Documento Verificado</h3>
+                        <p className="text-slate-500 font-medium">La firma digital es auténtica y válida</p>
+                      </div>
+
+                      {certificadoInfo && (
+                        <div className="space-y-6">
+                          <div className="grid grid-cols-1 gap-y-5 bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                            <div className="space-y-1">
+                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Título del curso</p>
+                              <p className="text-slate-800 font-bold leading-tight text-lg">{certificadoInfo.nombre_curso_taller}</p>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                              <div className="space-y-1">
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Participante</p>
+                                <p className="text-slate-800 font-bold leading-none">{certificadoInfo.nombre}</p>
+                              </div>
+                              <div className="space-y-1">
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Cédula</p>
+                                <p className="text-slate-800 font-bold leading-none">{certificadoInfo.cedula}</p>
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4 border-t border-slate-200 pt-5 mt-1">
+                              <div className="space-y-1">
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Duración</p>
+                                <p className="text-slate-800 font-bold leading-none">{certificadoInfo.duracion}</p>
+                              </div>
+                              <div className="space-y-1">
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Fecha Emisión</p>
+                                <p className="text-slate-800 font-bold leading-none">{certificadoInfo.fecha}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          {certificadoInfo.contenido && certificadoInfo.contenido.length > 0 && (
+                            <div className="space-y-3">
+                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Contenido Programático</p>
+                              <div className="flex flex-wrap gap-2">
+                                {certificadoInfo.contenido.map((tema, i) => (
+                                  <span key={i} className="px-3 py-1 bg-blue-50 text-blue-700 text-[10px] font-bold rounded-lg border border-blue-100 uppercase">
+                                    {tema}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="pt-2">
+                             <button 
+                               onClick={() => setIsModalOpen(false)}
+                               className="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-black transition-all shadow-xl shadow-slate-200"
+                             >
+                               Entendido
+                             </button>
+                          </div>
+                        </div>
+                      )}
+                    </DialogPanel>
+                  </TransitionChild>
+                </div>
+              </div>
+            </Dialog>
+          </Transition>
+        </div>
+        
+        <div className="mt-12 text-slate-400 text-sm font-medium text-center">
+          Sistema Verificado • Cifrado de 256 bits
         </div>
       </div>
     </Layout>
