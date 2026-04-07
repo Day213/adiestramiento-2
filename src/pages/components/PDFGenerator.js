@@ -97,7 +97,7 @@ export const generatePDFsForParticipants = (formData) => {
     });
 
     doc.setFont(undefined, "normal");
-    doc.addImage(kikiFirma, "PNG", 220, 130, 45, 25);
+    // doc.addImage(kikiFirma, "PNG", 220, 130, 45, 25);
     doc.text("_________________________", 216, 152);
     doc.setFontSize(12);
     doc.setFont(undefined, "bold");
