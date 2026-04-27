@@ -133,7 +133,8 @@ export const generatePDFsForParticipants = (formData) => {
 
     // Agregar el QR y enlace en la parte superior derecha de la segunda página
     if (participant.qr) {
-      const baseUrl = import.meta.env.VITE_URL || "https://adiestramiento.netlify.app";
+      let baseUrl = import.meta.env.VITE_URL || "https://adiestramiento.netlify.app";
+      if (!baseUrl.endsWith('/')) baseUrl += '/';
       const verificationUrl = `${baseUrl}validar?token=${participant.token}`;
       
       doc.setFontSize(10);

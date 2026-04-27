@@ -2,7 +2,8 @@ import QRCode from "qrcode";
 
 export const generateQRCodeDataUrl = async (token) => {
   try {
-    const baseUrl = import.meta.env.VITE_URL || window.location.origin;
+    let baseUrl = import.meta.env.VITE_URL || window.location.origin;
+    if (!baseUrl.endsWith('/')) baseUrl += '/';
     const url = `${baseUrl}validar?token=${token}`;
     return await QRCode.toDataURL(url);
   } catch (err) {
