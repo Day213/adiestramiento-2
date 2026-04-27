@@ -131,17 +131,22 @@ export const generatePDFsForParticipants = (formData) => {
     // Agregar una nueva página para los detalles del programa
     doc.addPage();
 
-    // Agregar el QR en la parte superior derecha de la segunda página
+    // Agregar el QR y enlace en la parte superior derecha de la segunda página
     if (participant.qr) {
-      doc.addImage(participant.qr, "PNG", 225, 10, 70, 70);
-      doc.setFontSize(8);
-      doc.saveGraphicsState();
-      // Ajustamos la posición del token para que sea visible en la segunda página
+      const baseUrl = import.meta.env.VITE_URL || "https://adiestramiento.netlify.app";
+      const verificationUrl = `${baseUrl}validar?token=${participant.token}`;
+      
+      doc.setFontSize(10);
       doc.setFont(undefined, "bold");
-      doc.text('TOKEN DE VERIFICACIÓN', 20, 15, { align: "left" });
+      doc.setTextColor(0, 100, 200);
+      doc.textWithLink('Verificar documento aquí', 20, 15, { url: verificationUrl });
+      doc.setTextColor(0, 0, 0);
+      
+      doc.setFontSize(7);
       doc.setFont(undefined, "normal");
-      doc.text(participant.token, 20, 20, { align: "left", maxWidth: 200 });
-      doc.restoreGraphicsState();
+      doc.text(`Token: ${participant.token}`, 20, 25, { maxWidth: 180 });
+      
+      doc.addImage(participant.qr, "PNG", 225, 10, 50, 50);
     }
 
     doc.setFontSize(17);

@@ -61,7 +61,7 @@ export const CrearCertificado = () => {
   const handleGeneratePDFs = async () => {
     const participantesConQR = await Promise.all(formData.participante.map(async (p) => {
       const uniqueId = `CERT-${p.cedula}-${Date.now()}`
-      const secret = new TextEncoder().encode(import.meta.env.VITE_CERT_SECRET || 'adiestramiento_certificados_secret')
+      const secret = new TextEncoder().encode('adiestramiento_certificados_secret')
       const token = await new SignJWT({
         id: uniqueId,
         nombre: p.name,

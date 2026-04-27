@@ -1,10 +1,11 @@
-import React, { useState, Fragment } from 'react'
+import React, { useState, useEffect, Fragment } from 'react'
 import { jwtVerify } from 'jose'
+import { useSearchParams } from 'react-router-dom'
 import { Dialog, Transition, TransitionChild, DialogPanel } from '@headlessui/react'
-import { QRCodeReader } from './components/QRCodeReader'
 import { Layout } from '../components/layout'
 
 export const ValidarDocumento = () => {
+  const [searchParams] = useSearchParams()
   const [codigo, setCodigo] = useState('')
   const [resultado, setResultado] = useState(null)
   const [certificadoInfo, setCertificadoInfo] = useState(null)
@@ -13,7 +14,8 @@ export const ValidarDocumento = () => {
 
   const validarToken = async (token) => {
     try {
-      const secret = new TextEncoder().encode(import.meta.env.VITE_CERT_SECRET || 'adiestramiento_certificados_secret')
+      const secretKey = 'adiestramiento_certificados_secret'
+      const secret = new TextEncoder().encode(secretKey)
       const { payload } = await jwtVerify(token, secret)
       return payload
     } catch (error) {
@@ -22,43 +24,33 @@ export const ValidarDocumento = () => {
     }
   }
 
-  const handleValidar = async () => {
-    const codigoLimpio = codigo.replace(/\s/g, '')
-    
-    if (!codigoLimpio) {
-      setResultado('Por favor ingrese un código para validar')
-      return
-    }
-
+  const ejecutarValidacion = async (codigoLimpio) => {
     setIsLoading(true)
     try {
-      if (codigoLimpio.startsWith('ey') && codigoLimpio.split('.').length === 3) {
-        const payload = await validarToken(codigoLimpio)
+      const partes = codigoLimpio.split('.')
+      if (!codigoLimpio.startsWith('ey') || partes.length < 3) {
+        setResultado('Token inválido o incompleto')
+        setCertificadoInfo(null)
+        setIsLoading(false)
+        return
+      }
+      
+      const payload = await validarToken(codigoLimpio)
         
-        if (payload) {
-          setCertificadoInfo({
-            nombre: payload.nombre,
-            cedula: payload.cedula,
-            fecha: new Date(payload.iat * 1000).toLocaleDateString(),
-            duracion: payload.duracion,
-            nombre_curso_taller: payload.nombre_curso_taller,
-            contenido: payload.contenido,
-            id: payload.id
-          })
-          setResultado('✅ Certificado válido')
-          setIsModalOpen(true)
-        } else {
-          setResultado('❌ Código de certificado inválido')
-          setCertificadoInfo(null)
-        }
-      } else if (codigo.startsWith('CERT-')) {
-        setResultado('⚠️ Código de formato antiguo detectado')
+      if (payload) {
         setCertificadoInfo({
-          id: codigo,
-          mensaje: 'Este certificado fue generado con una versión anterior del sistema.'
+          nombre: payload.nombre,
+          cedula: payload.cedula,
+          fecha: new Date(payload.iat * 1000).toLocaleDateString(),
+          duracion: payload.duracion,
+          nombre_curso_taller: payload.nombre_curso_taller,
+          contenido: payload.contenido,
+          id: payload.id
         })
+        setResultado('✅ Certificado válido')
+        setIsModalOpen(true)
       } else {
-        setResultado('❌ Formato de código no reconocido')
+        setResultado('❌ Código de certificado inválido')
         setCertificadoInfo(null)
       }
     } catch (error) {
@@ -70,14 +62,24 @@ export const ValidarDocumento = () => {
     }
   }
 
-  const handleScan = (data) => {
-    if (data) {
-      setCodigo(data)
+  useEffect(() => {
+    const token = searchParams.get('token')
+    if (token) {
+      console.log('Token recibido:', token)
+      setCodigo(token)
+      ejecutarValidacion(token)
     }
-  }
+  }, [searchParams])
 
-  const handleError = (err) => {
-    console.error('Error al escanear el código QR:', err)
+  const handleValidar = async () => {
+    const codigoLimpio = codigo.replace(/\s/g, '')
+    
+    if (!codigoLimpio) {
+      setResultado('Por favor ingrese un código para validar')
+      return
+    }
+
+    await ejecutarValidacion(codigoLimpio)
   }
 
   return (
@@ -116,28 +118,6 @@ export const ValidarDocumento = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
                     </svg>
                   </div>
-                </div>
-              </div>
-
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center" aria-hidden="true">
-                  <div className="w-full border-t border-slate-100"></div>
-                </div>
-                <div className="relative flex justify-center text-sm uppercase tracking-widest font-bold">
-                  <span className="bg-white px-4 text-slate-400">o escanee el QR</span>
-                </div>
-              </div>
-
-              <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-3xl p-4 transition-all hover:bg-slate-100/50 group">
-                <div className="aspect-video bg-black rounded-2xl overflow-hidden shadow-inner flex items-center justify-center relative">
-                   <QRCodeReader onScan={handleScan} onError={handleError} />
-                   {!codigo && (
-                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                       <div className="bg-white/10 backdrop-blur-sm border border-white/20 px-4 py-2 rounded-full text-white text-xs font-bold animate-pulse">
-                         Esperando cámara...
-                       </div>
-                     </div>
-                   )}
                 </div>
               </div>
 
