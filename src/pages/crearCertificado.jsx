@@ -16,6 +16,14 @@ export const CrearCertificado = () => {
   const [solicitud, setSolicitud] = useState({ tipo_solicitud: 'curso/taller' })
   const [loading, setLoading] = useState(false)
   const [participantes, setParticipantes] = useState([{ name: "", cedula: "", folio: "", libro: "", reglon: "" },])
+  const [toast, setToast] = useState(null)
+
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 4000)
+      return () => clearTimeout(timer)
+    }
+  }, [toast])
 
   const [formData, setFormData] = useState({
     nombre_solicitud: '',
@@ -59,7 +67,28 @@ export const CrearCertificado = () => {
   }
 
   const handleGeneratePDFs = async () => {
-    const participantesConQR = await Promise.all(formData.participante.map(async (p) => {
+    if (!formData.nombre_solicitud || formData.nombre_solicitud.trim() === "") {
+      setToast("El nombre del curso/taller es requerido")
+      return
+    }
+    
+    if (!formData.duracion || formData.duracion.trim() === "") {
+      setToast("La duración es requerida")
+      return
+    }
+    
+    if (!formData.contenido || formData.contenido.length === 0) {
+      setToast("Agregue al menos un tema al temario")
+      return
+    }
+    
+    const participantesValidos = participantes.filter(p => p.name && p.name.trim() !== "" && p.cedula && p.cedula.trim() !== "")
+    if (participantesValidos.length === 0) {
+      setToast("Agregue al menos un participante con nombre y cédula")
+      return
+    }
+    
+    const participantesConQR = await Promise.all(participantesValidos.map(async (p) => {
       const uniqueId = `CERT-${p.cedula}-${Date.now()}`
       const secret = new TextEncoder().encode('adiestramiento_certificados_secret')
       const token = await new SignJWT({
@@ -82,6 +111,16 @@ export const CrearCertificado = () => {
 
   return (
     <Layout>
+      {toast && (
+        <div className="fixed bottom-8 right-8 z-50 animate-in fade-in slide-in-from-bottom-2">
+          <div className="bg-red-500 text-white px-6 py-4 rounded-xl shadow-2xl font-bold flex items-center gap-3">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            {toast}
+          </div>
+        </div>
+      )}
       <div className=" py-8">
         <div className="bg-white shadow-2xl rounded-2xl overflow-hidden border border-slate-100">
           <div className="bg-slate-900 px-8 py-6 text-white">
