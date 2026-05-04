@@ -1,7 +1,8 @@
 import jsPDF, { GState } from "jspdf";
 import mebreteImage from "/mebrete.png";
 import americaFirma from "/america.png";
-import NataliFirma from "/jose.png";
+import NataliFirma from "/natalifirma.png";
+import JoseFirma from "/jose.png";
 import kikiFirma from "/kiki.png";
 import footer from "/footer.jpg";
 import logo_unefm from "/logo_unefm.png";
@@ -84,7 +85,7 @@ export const generatePDFsForParticipants = (formData) => {
     );
 
     doc.setFont(undefined, "normal");
-    doc.addImage(NataliFirma, "PNG", 125, 130, 45, 25);
+    doc.addImage(JoseFirma, "PNG", 125, 130, 45, 25);
     doc.text("_______________________", 120, 152);
     doc.setFontSize(12);
     doc.setFont(undefined, "bold");
@@ -97,7 +98,7 @@ export const generatePDFsForParticipants = (formData) => {
     });
 
     doc.setFont(undefined, "normal");
-    // doc.addImage(kikiFirma, "PNG", 220, 130, 45, 25);
+    doc.addImage(NataliFirma, "PNG", 215, 130, 45, 25);
     doc.text("_________________________", 216, 152);
     doc.setFontSize(12);
     doc.setFont(undefined, "bold");
@@ -110,11 +111,11 @@ export const generatePDFsForParticipants = (formData) => {
     });
 
     doc.setFontSize(12);
-    doc.addImage(americaFirma, "PNG", 30, 155 - 20, 40, 20);
+    // doc.addImage(americaFirma, "PNG", 30, 155 - 20, 40, 20); // TODO: agregar firma cuando esté disponible
     doc.text("_________________________", 20, 171 - 20);
     doc.setFontSize(12);
     doc.setFont(undefined, "bold");
-    doc.text("Licda. America Colina", 30, 178 - 20);
+    doc.text("Ing. Eydis Martinez", 30, 178 - 20);
 
     doc.setFontSize(10);
     doc.setFont(undefined, "normal");
