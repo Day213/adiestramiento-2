@@ -1,13 +1,8 @@
 import jsPDF, { GState } from "jspdf";
 import mebreteImage from "/mebrete.png";
-import americaFirma from "/america.png";
 import NataliFirma from "/natalifirma.png";
 import JoseFirma from "/jose.png";
-import kikiFirma from "/kiki.png";
 import footer from "/footer.jpg";
-import logo_unefm from "/logo_unefm.png";
-import emblema from "/emblema.png";
-import ministerio from "/ministerio.png";
 import background from "/background.png";
 
 export const generatePDFsForParticipants = (formData) => {

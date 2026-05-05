@@ -14,7 +14,7 @@ export const ValidarDocumento = () => {
 
   const validarToken = async (token) => {
     try {
-      const secret = new TextEncoder().encode(import.meta.env.VITE_JWT_SECRET)
+      const secret = new TextEncoder().encode(import.meta.env.VITE_CERT_SECRET)
       const { payload } = await jwtVerify(token, secret)
       return payload
     } catch (error) {

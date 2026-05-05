@@ -10,16 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@emailjs/browser": "^4.4.1",
     "@headlessui/react": "^2.2.9",
-    "@supabase/supabase-js": "^2.50.2",
     "@tailwindcss/vite": "^4.1.11",
     "@tiptap/pm": "^3.10.1",
     "@tiptap/react": "^3.10.1",
     "@tiptap/starter-kit": "^3.10.1",
     "axios": "^1.10.0",
     "dotenv": "^17.2.3",
-    "emailjs-com": "^3.2.0",
     "jose": "^6.1.0",
     "jsonwebtoken": "^9.0.2",
     "jspdf": "^3.0.3",
