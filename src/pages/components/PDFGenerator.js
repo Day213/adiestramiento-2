@@ -4,6 +4,7 @@ import NataliFirma from "/natalifirma.png";
 import JoseFirma from "/jose.png";
 import footer from "/footer.jpg";
 import background from "/background.png";
+import eydisFirma from "/eydis-martinez.jpeg";
 
 export const generatePDFsForParticipants = (formData) => {
   console.log("generatePDFsForParticipants called with formData:", formData);
@@ -106,7 +107,7 @@ export const generatePDFsForParticipants = (formData) => {
     });
 
     doc.setFontSize(12);
-    // doc.addImage(americaFirma, "PNG", 30, 155 - 20, 40, 20); // TODO: agregar firma cuando esté disponible
+    doc.addImage(eydisFirma, "JPEG", 30, 155 - 20, 40, 20);
     doc.text("_________________________", 20, 171 - 20);
     doc.setFontSize(12);
     doc.setFont(undefined, "bold");
