@@ -64,9 +64,9 @@ export const generatePDFsForParticipants = (formData) => {
     doc.setFontSize(12);
     doc.setFont(undefined, "normal");
     doc.text(
-      `En calidad de PARTICIPANTE en el taller: ${
+      `En calidad de PARTICIPANTE en el ${formData.tipo_solicitud.toUpperCase()}: ${
         formData.nombre_solicitud
-      } (MODALIDAD PRESENCIAL). Evento realizado en ${
+      } (MODALIDAD ${formData.modalidad.toUpperCase()}). Evento realizado en ${
         formData.instalaciones
       } el día ${new Date(formData.dia_emision).toLocaleString("es-ES", {
         day: "2-digit",

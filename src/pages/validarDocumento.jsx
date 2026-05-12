@@ -40,8 +40,10 @@ export const ValidarDocumento = () => {
         setCertificadoInfo({
           nombre: payload.nombre,
           cedula: payload.cedula,
-          fecha: new Date(payload.iat * 1000).toLocaleDateString(),
+          fecha: payload.fecha ? new Date(payload.fecha).toLocaleDateString() : new Date(payload.iat * 1000).toLocaleDateString(),
           duracion: payload.duracion,
+          tipo_solicitud: payload.tipo_solicitud,
+          modalidad: payload.modalidad,
           nombre_curso_taller: payload.nombre_curso_taller,
           contenido: payload.contenido,
           id: payload.id
@@ -204,8 +206,18 @@ export const ValidarDocumento = () => {
                         <div className="space-y-6">
                           <div className="grid grid-cols-1 gap-y-5 bg-slate-50 p-6 rounded-3xl border border-slate-100">
                             <div className="space-y-1">
-                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Título del curso</p>
+                              <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Título del {certificadoInfo.tipo_solicitud || 'evento'}</p>
                               <p className="text-slate-800 font-bold leading-tight text-lg">{certificadoInfo.nombre_curso_taller}</p>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4 border-t border-slate-200 pt-5">
+                              <div className="space-y-1">
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Modalidad</p>
+                                <p className="text-slate-800 font-bold leading-none uppercase">{certificadoInfo.modalidad || 'N/A'}</p>
+                              </div>
+                              <div className="space-y-1 text-right">
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">ID Registro</p>
+                                <p className="text-slate-800 font-bold leading-none text-[10px]">{certificadoInfo.id}</p>
+                              </div>
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                               <div className="space-y-1">

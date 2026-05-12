@@ -31,7 +31,8 @@ export const CrearCertificado = () => {
     fecha_inicial: new Date().toISOString().split('T')[0],
     instalaciones: 'Este instituto',
     dia_emision: new Date().toISOString().split('T')[0],
-    tipo_solicitud: 'curso/taller',
+    tipo_solicitud: 'taller',
+    modalidad: 'presencial',
     contenido: [],
     participante: [],
   })
@@ -97,6 +98,8 @@ export const CrearCertificado = () => {
         nombre_curso_taller: formData.nombre_solicitud,
         cedula: p.cedula,
         duracion: formData.duracion,
+        tipo_solicitud: formData.tipo_solicitud,
+        modalidad: formData.modalidad,
         contenido: formData.contenido,
         fecha: new Date().toISOString()
       })
@@ -149,16 +152,47 @@ export const CrearCertificado = () => {
                   <div className="gap-6 grid grid-cols-1 md:grid-cols-2">
                     <div className="md:col-span-2">
                       <label className="block mb-1.5 font-semibold text-slate-700 text-sm" htmlFor="nombre">
-                        Nombre del {solicitud.tipo_solicitud}
+                        Nombre del {formData.tipo_solicitud}
                       </label>
-                      <input
+                        <input
                         id="nombre"
                         type="text"
-                        placeholder="Ej: Taller de Excel Avanzado"
+                        placeholder={`Ej: ${formData.tipo_solicitud === 'taller' ? 'Taller de Excel Avanzado' : 'Curso de React'}`}
                         value={formData.nombre_solicitud}
                         onChange={(e) => setFormData({ ...formData, nombre_solicitud: e.target.value })}
                         className="bg-blue-50 px-4 py-2.5 border-2 border-blue-200 focus:border-blue-500 rounded-xl focus:ring-4 focus:ring-blue-500/10 w-full text-slate-900 transition-all outline-none placeholder:text-blue-300 font-semibold"
                       />
+                    </div>
+
+                    <div>
+                      <label className="block mb-1.5 font-semibold text-slate-700 text-sm" htmlFor="tipo_solicitud">
+                        Tipo de evento
+                      </label>
+                      <select
+                        id="tipo_solicitud"
+                        value={formData.tipo_solicitud}
+                        onChange={(e) => setFormData({ ...formData, tipo_solicitud: e.target.value })}
+                        className="bg-blue-50 px-4 py-2.5 border-2 border-blue-200 focus:border-blue-500 rounded-xl focus:ring-4 focus:ring-blue-500/10 w-full text-slate-900 transition-all outline-none font-semibold cursor-pointer"
+                      >
+                        <option value="taller">Taller</option>
+                        <option value="curso">Curso</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block mb-1.5 font-semibold text-slate-700 text-sm" htmlFor="modalidad">
+                        Modalidad
+                      </label>
+                      <select
+                        id="modalidad"
+                        value={formData.modalidad}
+                        onChange={(e) => setFormData({ ...formData, modalidad: e.target.value })}
+                        className="bg-blue-50 px-4 py-2.5 border-2 border-blue-200 focus:border-blue-500 rounded-xl focus:ring-4 focus:ring-blue-500/10 w-full text-slate-900 transition-all outline-none font-semibold cursor-pointer"
+                      >
+                        <option value="presencial">Presencial</option>
+                        <option value="virtual">Virtual</option>
+                        <option value="semipresencial">Semipresencial</option>
+                      </select>
                     </div>
 
                     <div>
