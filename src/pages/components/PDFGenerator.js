@@ -4,7 +4,8 @@ import NataliFirma from "/natalifirma.png";
 import JoseFirma from "/jose.png";
 import footer from "/footer.jpg";
 import background from "/background.png";
-import eydisFirma from "/eydis-martinez.jpeg";
+import eydisFirma from "/eydis-martinez.png";
+import franciscoMiranda from "/francisco-miranda.png";
 
 export const generatePDFsForParticipants = (formData) => {
   console.log("generatePDFsForParticipants called with formData:", formData);
@@ -28,6 +29,24 @@ export const generatePDFsForParticipants = (formData) => {
       doc.internal.pageSize.getWidth(),
       doc.internal.pageSize.getHeight()
     );
+
+    // Agregar marca de agua (Francisco de Miranda)
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const imgWidth = 250; // Ajustar tamaño según sea necesario
+    const imgHeight = 150;
+
+    doc.saveGraphicsState();
+    doc.setGState(new GState({ opacity: 0.15 })); // Muy baja opacidad
+    doc.addImage(
+      franciscoMiranda,
+      "JPEG",
+      (pageWidth - imgWidth) / 350, // Centrado horizontalmente
+      (pageHeight - imgHeight) / 2, // Centrado verticalmente
+      imgWidth,
+      imgHeight
+    );
+    doc.restoreGraphicsState();
 
     // Agrega la imagen 'mebreteImage' al PDF.
     // Los números representan:
@@ -64,16 +83,13 @@ export const generatePDFsForParticipants = (formData) => {
     doc.setFontSize(12);
     doc.setFont(undefined, "normal");
     doc.text(
-      `En calidad de PARTICIPANTE en el ${formData.tipo_solicitud.toUpperCase()}: ${
-        formData.nombre_solicitud
-      } (MODALIDAD ${formData.modalidad.toUpperCase()}). Evento realizado en ${
-        formData.instalaciones
+      `En calidad de ${(formData.rol || 'participante').toUpperCase()} en el ${formData.tipo_solicitud.toUpperCase()}: ${formData.nombre_solicitud
+      } (MODALIDAD ${formData.modalidad.toUpperCase()}). Evento realizado en ${formData.instalaciones
       } el día ${new Date(formData.dia_emision).toLocaleString("es-ES", {
         day: "2-digit",
       })} de ${new Date(formData.dia_emision).toLocaleString("es-ES", {
         month: "long",
-      })} de ${new Date(formData.dia_emision).getFullYear()}. Duración: ${
-        formData.duracion
+      })} de ${new Date(formData.dia_emision).getFullYear()}. Duración: ${formData.duracion
       }`,
       20,
       120,
@@ -133,17 +149,17 @@ export const generatePDFsForParticipants = (formData) => {
       let baseUrl = import.meta.env.VITE_URL || "https://adiestramiento.netlify.app";
       if (!baseUrl.endsWith('/')) baseUrl += '/';
       const verificationUrl = `${baseUrl}validar?token=${participant.token}`;
-      
+
       doc.setFontSize(10);
       doc.setFont(undefined, "bold");
       doc.setTextColor(0, 100, 200);
       doc.textWithLink('Verificar documento aquí', 20, 15, { url: verificationUrl });
       doc.setTextColor(0, 0, 0);
-      
+
       doc.setFontSize(7);
       doc.setFont(undefined, "normal");
       doc.text(`Token: ${participant.token}`, 20, 25, { maxWidth: 180 });
-      
+
       doc.addImage(participant.qr, "PNG", 225, 10, 50, 50);
     }
 

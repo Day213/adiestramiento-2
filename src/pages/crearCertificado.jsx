@@ -33,6 +33,7 @@ export const CrearCertificado = () => {
     dia_emision: new Date().toISOString().split('T')[0],
     tipo_solicitud: 'taller',
     modalidad: 'presencial',
+    rol: 'participante',
     contenido: [],
     participante: [],
   })
@@ -100,6 +101,7 @@ export const CrearCertificado = () => {
         duracion: formData.duracion,
         tipo_solicitud: formData.tipo_solicitud,
         modalidad: formData.modalidad,
+        rol: formData.rol,
         contenido: formData.contenido,
         fecha: new Date().toISOString()
       })
@@ -192,6 +194,21 @@ export const CrearCertificado = () => {
                         <option value="presencial">Presencial</option>
                         <option value="virtual">Virtual</option>
                         <option value="semipresencial">Semipresencial</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block mb-1.5 font-semibold text-slate-700 text-sm" htmlFor="rol">
+                        Rol
+                      </label>
+                      <select
+                        id="rol"
+                        value={formData.rol}
+                        onChange={(e) => setFormData({ ...formData, rol: e.target.value })}
+                        className="bg-blue-50 px-4 py-2.5 border-2 border-blue-200 focus:border-blue-500 rounded-xl focus:ring-4 focus:ring-blue-500/10 w-full text-slate-900 transition-all outline-none font-semibold cursor-pointer"
+                      >
+                        <option value="participante">Participante</option>
+                        <option value="facilitador">Facilitador</option>
                       </select>
                     </div>
 

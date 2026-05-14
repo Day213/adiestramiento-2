@@ -46,6 +46,7 @@ export const ValidarDocumento = () => {
           modalidad: payload.modalidad,
           nombre_curso_taller: payload.nombre_curso_taller,
           contenido: payload.contenido,
+          rol: payload.rol,
           id: payload.id
         })
         setResultado('✅ Certificado válido')
@@ -221,7 +222,7 @@ export const ValidarDocumento = () => {
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                               <div className="space-y-1">
-                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Participante</p>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{certificadoInfo.rol || 'Participante'}</p>
                                 <p className="text-slate-800 font-bold leading-none">{certificadoInfo.nombre}</p>
                               </div>
                               <div className="space-y-1">
