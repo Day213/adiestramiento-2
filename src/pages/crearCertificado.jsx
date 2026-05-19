@@ -117,7 +117,7 @@ export const CrearCertificado = () => {
   return (
     <Layout>
       {toast && (
-        <div className="fixed bottom-8 right-8 z-50 animate-in fade-in slide-in-from-bottom-2">
+        <div className="fixed bottom-4 left-4 right-4 sm:bottom-8 sm:right-8 sm:left-auto z-50 animate-in fade-in slide-in-from-bottom-2">
           <div className="bg-red-500 text-white px-6 py-4 rounded-xl shadow-2xl font-bold flex items-center gap-3">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -126,18 +126,18 @@ export const CrearCertificado = () => {
           </div>
         </div>
       )}
-      <div className=" py-8">
+      <div className="py-4 sm:py-8">
         <div className="bg-white shadow-2xl rounded-2xl overflow-hidden border border-slate-100">
-          <div className="bg-slate-900 px-8 py-6 text-white">
-            <h1 className="font-extrabold text-3xl tracking-tight uppercase">
+          <div className="bg-slate-900 px-4 py-6 sm:px-8 text-white">
+            <h1 className="font-extrabold text-2xl sm:text-3xl tracking-tight uppercase">
               Generar Certificados
             </h1>
-            <p className="mt-1 text-slate-400 text-sm">
+            <p className="mt-1 text-slate-400 text-xs sm:text-sm">
               Complete la información para generar automáticamente los certificados para los participantes.
             </p>
           </div>
 
-          <div className="p-8">
+          <div className="p-4 sm:p-8">
             {loading ? (
               <div className="flex justify-center items-center h-64">
                 <div className="border-4 border-blue-500 border-t-transparent rounded-full w-12 h-12 animate-spin"></div>
@@ -288,7 +288,7 @@ export const CrearCertificado = () => {
                     <div className="bg-amber-500 rounded-lg w-2 h-6"></div>
                     <h2 className="font-bold text-slate-800 text-xl">Temario / Contenido</h2>
                   </div>
-                  <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                  <div className="bg-slate-50 p-4 sm:p-6 rounded-2xl border border-slate-200">
                     <InputArray
                       onTagsChange={(newTags) => setFormData({ ...formData, contenido: newTags })}
                       label="temas"
@@ -303,7 +303,7 @@ export const CrearCertificado = () => {
                     <div className="bg-emerald-500 rounded-lg w-2 h-6"></div>
                     <h2 className="font-bold text-slate-800 text-xl">Participantes</h2>
                   </div>
-                  <div className="bg-slate-50 p-6 rounded-2xl border border-slate-200">
+                  <div className="bg-slate-50 p-4 sm:p-6 rounded-2xl border border-slate-200">
                     <PaticipantesSection participantes={participantes} setParticipantes={setParticipantes} />
                   </div>
                 </div>

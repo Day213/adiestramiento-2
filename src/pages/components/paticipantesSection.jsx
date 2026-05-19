@@ -16,19 +16,19 @@ export const PaticipantesSection = ({ participantes, setParticipantes }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center bg-slate-100/50 p-4 rounded-xl border border-slate-200/50">
+      <div className="flex justify-between items-center bg-slate-100/50 p-3 sm:p-4 rounded-xl border border-slate-200/50">
         <div className="flex items-center gap-2">
           <span className="flex justify-center items-center bg-emerald-100 rounded-lg w-8 h-8 font-bold text-emerald-700 text-sm">
             {participantes.length}
           </span>
-          <h2 className="font-bold text-slate-700 text-lg uppercase tracking-wide">
+          <h2 className="font-bold text-slate-700 text-sm sm:text-lg uppercase tracking-wide">
             Participantes
           </h2>
         </div>
         <button
           type="button"
           onClick={handleAddParticipant}
-          className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/20 shadow-lg px-4 py-2 rounded-xl font-bold text-white text-sm transition-all transform active:scale-95"
+          className="flex items-center gap-1.5 sm:gap-2 bg-emerald-600 hover:bg-emerald-700 shadow-emerald-500/20 shadow-lg px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl font-bold text-white text-xs sm:text-sm transition-all transform active:scale-95"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -39,7 +39,7 @@ export const PaticipantesSection = ({ participantes, setParticipantes }) => {
 
       <div className="gap-4 grid grid-cols-1">
         {participantes.map((participant, index) => (
-          <div key={index} className="relative bg-white shadow-sm hover:shadow-md border border-slate-200 hover:border-emerald-200 p-6 rounded-2xl transition-all group animate-in slide-in-from-bottom-2 duration-300">
+          <div key={index} className="relative bg-white shadow-sm hover:shadow-md border border-slate-200 hover:border-emerald-200 p-4 sm:p-6 pr-10 sm:pr-6 rounded-2xl transition-all group animate-in slide-in-from-bottom-2 duration-300">
             <div className="top-4 right-4 absolute">
               <button
                 type="button"
