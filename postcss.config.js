@@ -1,6 +1,6 @@
 export default {
   plugins: {
-    '@csstools/postcss-cascade-layers': {},
-    'autoprefixer': {},
+    tailwindcss: {},
+    autoprefixer: {},
   },
 };
