@@ -2,7 +2,7 @@
 import { Link, useNavigate, useLocation } from "react-router-dom"
 import { useState, useEffect } from "react"
 
-export const Layout = ({ children }) => {
+export const Layout = ({ children, fullWidth = false }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
   const navigate = useNavigate()
@@ -127,8 +127,8 @@ export const Layout = ({ children }) => {
       </nav>
 
       {/* Main Content */}
-      <main className="flex-grow">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <main className="flex-grow flex flex-col">
+        <div className={`${fullWidth ? "w-full flex-grow px-4 sm:px-6 lg:px-8 max-w-[98%] mx-auto" : "container mx-auto px-4 sm:px-6 lg:px-8"}`}>
           {children}
         </div>
       </main>

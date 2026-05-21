@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 
 
 
-export const InputArray = ({ onTagsChange, label = '', tagsDefault = [] }) => {
+export const InputArray = ({ onTagsChange, label = '', tagsDefault = [], hasError = false }) => {
   const [tags, setTags] = useState(tagsDefault)
   const [inputValue, setInputValue] = useState('')
 
@@ -50,7 +50,11 @@ export const InputArray = ({ onTagsChange, label = '', tagsDefault = [] }) => {
         <input
           type="text"
           value={inputValue}
-          className="bg-amber-50 px-4 py-2.5 border-2 border-amber-200 focus:border-amber-500 rounded-xl focus:ring-4 focus:ring-amber-500/10 w-full text-slate-900 transition-all outline-none placeholder:text-amber-300 font-semibold"
+          className={`px-4 py-2.5 border-2 rounded-xl focus:ring-4 w-full text-slate-900 transition-all outline-none font-semibold ${
+            hasError
+              ? "bg-rose-50/50 border-rose-500 focus:border-rose-600 focus:ring-rose-500/10 placeholder:text-rose-300"
+              : "bg-amber-50 border-amber-200 focus:border-amber-500 focus:ring-amber-500/10 placeholder:text-amber-300"
+          }`}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
           placeholder={`Escriba y presione Enter para agregar ${label}...`}

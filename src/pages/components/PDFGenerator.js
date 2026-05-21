@@ -6,8 +6,19 @@ import footer from "/footer.jpg";
 import background from "/background.png";
 import eydisFirma from "/eydis-martinez.png";
 import franciscoMiranda from "/francisco-miranda.png";
+const parseLocalDate = (dateStr) => {
+  if (!dateStr) return new Date();
+  const parts = dateStr.split("-");
+  if (parts.length === 3) {
+    const year = parseInt(parts[0], 10);
+    const month = parseInt(parts[1], 10) - 1; // 0-indexed month
+    const day = parseInt(parts[2], 10);
+    return new Date(year, month, day);
+  }
+  return new Date(dateStr);
+};
 
-export const generatePDFsForParticipants = (formData) => {
+export const generatePDFsForParticipants = async (formData, onProgress) => {
   console.log("generatePDFsForParticipants called with formData:", formData);
 
   if (!formData.participante || formData.participante.length === 0) {
@@ -15,8 +26,16 @@ export const generatePDFsForParticipants = (formData) => {
     return;
   }
 
-  formData.participante.forEach((participant, index) => {
+  for (let index = 0; index < formData.participante.length; index++) {
+    const participant = formData.participante[index];
     console.log(`Generating PDF for participant: ${participant.name}`);
+
+    if (onProgress) {
+      onProgress(index + 1, formData.participante.length, participant.name);
+    }
+
+    // Esperar 800ms para mantener el navegador responsivo y no colapsar la PC
+    await new Promise((resolve) => setTimeout(resolve, 800));
 
     const doc = new jsPDF({ orientation: "l" });
 
@@ -58,7 +77,7 @@ export const generatePDFsForParticipants = (formData) => {
 
     doc.setFontSize(17);
 
-    const formattedDate = new Date(formData.fecha_inicial).toLocaleString(
+    const formattedDate = parseLocalDate(formData.fecha_inicial).toLocaleString(
       "es-ES",
       {
         day: "numeric",
@@ -85,11 +104,11 @@ export const generatePDFsForParticipants = (formData) => {
     doc.text(
       `En calidad de ${(formData.rol || 'participante').toUpperCase()} en el ${formData.tipo_solicitud.toUpperCase()}: ${formData.nombre_solicitud
       } (MODALIDAD ${formData.modalidad.toUpperCase()}). Evento realizado en ${formData.instalaciones
-      } el día ${new Date(formData.dia_emision).toLocaleString("es-ES", {
+      } el día ${parseLocalDate(formData.dia_emision).toLocaleString("es-ES", {
         day: "2-digit",
-      })} de ${new Date(formData.dia_emision).toLocaleString("es-ES", {
+      })} de ${parseLocalDate(formData.dia_emision).toLocaleString("es-ES", {
         month: "long",
-      })} de ${new Date(formData.dia_emision).getFullYear()}. Duración: ${formData.duracion
+      })} de ${parseLocalDate(formData.dia_emision).getFullYear()}. Duración: ${formData.duracion
       }`,
       20,
       120,
@@ -219,7 +238,7 @@ export const generatePDFsForParticipants = (formData) => {
     )}_${index + 1}.pdf`;
     console.log(`Saving PDF with fileName: ${fileName}`);
     doc.save(fileName);
-  });
+  }
 };
 
 const capitalizeWords = (str) => {
