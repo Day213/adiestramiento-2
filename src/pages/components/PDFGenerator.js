@@ -87,8 +87,8 @@ export const generatePDFsForParticipants = async (formData, onProgress) => {
     );
     doc.setFont(undefined, "normal");
     doc.setLineHeightFactor(1.5); // Establece un interlineado mayor
-    const content = `Universidad Nacional Experimental Francisco de Miranda Vicerrectorado Administrativo Dirección de Recursos Humanos Departamento de Adiestramiento`;
-    doc.text(content, 140, 50, { align: "center", maxWidth: 150 });
+    const content = `Universidad Nacional Experimental Francisco de Miranda\nVicerrectorado Administrativo dirección de Recursos Humanos\nDepartamento de Adiestramiento`;
+    doc.text(content, 140, 50, { align: "center", maxWidth: 180 });
 
     doc.setFont(undefined, "bold");
     doc.text("Otorga el presente certificado a:", 140, 80, { align: "center" });

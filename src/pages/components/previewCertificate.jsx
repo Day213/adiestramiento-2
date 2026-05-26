@@ -124,9 +124,9 @@ export const PreviewCertificate = ({ formData, participantes }) => {
 
               {/* Header Institutional Text */}
               <div className="text-slate-700 leading-tight w-[90%] mx-auto font-medium mb-1">
-                Universidad Nacional Experimental Francisco de Miranda
-                Vicerrectorado Administrativo Dirección de Recursos Humanos
-                Departamento de Adiestramiento
+                <p>Universidad Nacional Experimental Francisco de Miranda</p>
+                <p>Vicerrectorado Administrativo dirección de Recursos Humanos</p>
+                <p>Departamento de Adiestramiento</p>
               </div>
 
               {/* Award Title */}
