@@ -26,7 +26,7 @@ export const Layout = ({ children, fullWidth = false }) => {
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Navigation Bar */}
-      <nav className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm">
+      <nav className="bg-white border-b border-slate-200 sticky top-0 z-50 shadow-sm py-2">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             {/* Logo */}
@@ -63,7 +63,11 @@ export const Layout = ({ children, fullWidth = false }) => {
               ) : (
                 <Link
                   to="/login"
-                  className={`text-xs font-bold text-slate-300 hover:text-slate-500 transition-colors whitespace-nowrap ${location.pathname === '/login' ? 'hidden' : ''}`}
+                  className={`transition-colors whitespace-nowrap ${
+                    location.pathname === '/login'
+                      ? 'text-blue-600 bg-blue-50 px-3 py-2 rounded-xl text-sm font-semibold'
+                      : 'text-sm font-semibold text-slate-300 hover:text-slate-500 px-3 py-2'
+                  }`}
                   title="Acceso Privado"
                 >
                   INICIAR SESIÓN
@@ -112,22 +116,24 @@ export const Layout = ({ children, fullWidth = false }) => {
                 </button>
               </>
             ) : (
-              location.pathname !== '/login' && (
-                <Link
-                  to="/login"
-                  className="text-sm font-bold text-slate-400 hover:text-slate-600 hover:bg-slate-50 px-3 py-2.5 rounded-xl transition-colors"
-                  title="Acceso Privado"
-                >
-                  INICIAR SESIÓN
-                </Link>
-              )
+              <Link
+                to="/login"
+                className={`text-sm font-semibold px-3 py-2.5 rounded-xl transition-colors ${
+                  location.pathname === '/login'
+                    ? 'text-blue-600 bg-blue-50'
+                    : 'text-slate-400 hover:text-slate-600 hover:bg-slate-50'
+                }`}
+                title="Acceso Privado"
+              >
+                INICIAR SESIÓN
+              </Link>
             )}
           </div>
         </div>
       </nav>
 
       {/* Main Content */}
-      <main className="flex-grow flex flex-col">
+      <main className="flex-grow flex flex-col mt-8">
         <div className={`${fullWidth ? "w-full flex-grow px-4 sm:px-6 lg:px-8 max-w-[98%] mx-auto" : "container mx-auto px-4 sm:px-6 lg:px-8"}`}>
           {children}
         </div>

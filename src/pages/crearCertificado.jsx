@@ -163,7 +163,7 @@ export const CrearCertificado = () => {
   };
 
   return (
-    <Layout fullWidth={true}>
+    <Layout >
       {toast && (
         <div className="fixed bottom-4 left-4 right-4 sm:bottom-8 sm:right-8 sm:left-auto z-50 animate-in fade-in slide-in-from-bottom-2">
           <div className="bg-red-500 text-white px-6 py-4 rounded-xl shadow-2xl font-bold flex items-center gap-3">

@@ -123,10 +123,10 @@ export const PreviewCertificate = ({ formData, participantes }) => {
               </div>
 
               {/* Header Institutional Text */}
-              <div className="text-slate-700 leading-tight w-[90%] mx-auto font-medium mb-1">
-                <p>Universidad Nacional Experimental Francisco de Miranda</p>
-                <p>Vicerrectorado Administrativo dirección de Recursos Humanos</p>
-                <p>Departamento de Adiestramiento</p>
+              <div className="text-slate-700 leading-tight w-[90%] mx-auto font-medium mb-1 text-[8px] flex flex-col gap-[1px]">
+                <span className="mb-0 leading-tight">Universidad Nacional Experimental Francisco de Miranda</span>
+                <span className="mb-0 leading-tight">Vicerrectorado Administrativo dirección de Recursos Humanos</span>
+                <span className="mb-0 leading-tight">Departamento de Adiestramiento</span>
               </div>
 
               {/* Award Title */}
