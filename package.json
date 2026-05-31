@@ -24,7 +24,8 @@
     "qrcode": "^1.5.4",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-router-dom": "^7.6.2"
+    "react-router-dom": "^7.6.2",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@csstools/postcss-cascade-layers": "^6.0.0",

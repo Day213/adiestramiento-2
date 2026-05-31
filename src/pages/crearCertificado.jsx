@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { SignJWT } from "jose"; // Changed from 'jsonwebtoken'
 import { Layout } from "../components/layout";
 import { useNavigate } from "react-router-dom";
+import * as XLSX from "xlsx";
 
 import { InputArray } from "./components/inputArray";
 import { generatePDFsForParticipants } from "./components/PDFGenerator";
@@ -21,6 +22,7 @@ export const CrearCertificado = () => {
   const [toast, setToast] = useState(null);
   const [downloadProgress, setDownloadProgress] = useState(null);
   const [showErrors, setShowErrors] = useState(false);
+  const [downloadExcelAlso, setDownloadExcelAlso] = useState(true);
 
   useEffect(() => {
     if (toast) {
@@ -147,6 +149,10 @@ export const CrearCertificado = () => {
         }),
       );
 
+      if (downloadExcelAlso) {
+        exportToExcel(participantesConQR);
+      }
+
       await generatePDFsForParticipants(
         { ...formData, participante: participantesConQR },
         (current, total, name) => {
@@ -160,6 +166,96 @@ export const CrearCertificado = () => {
       setDownloadProgress(null);
       setLoading(false);
     }
+  };
+
+  const exportToExcel = (participantesConDatos) => {
+    try {
+      const wb = XLSX.utils.book_new();
+
+      // Formatear todo en un solo arreglo de arreglos (AOA)
+      const data = [
+        ["CONFIGURACIÓN DEL EVENTO", ""],
+        ["", ""],
+        ["Nombre del Evento", formData.nombre_solicitud || ""],
+        ["Tipo de Evento", formData.tipo_solicitud || ""],
+        ["Modalidad", formData.modalidad || ""],
+        ["Rol", formData.rol || ""],
+        ["Duración", formData.duracion || ""],
+        ["Instalaciones", formData.instalaciones || ""],
+        ["Fecha Inicial", formData.fecha_inicial || ""],
+        ["Fecha de Emisión", formData.dia_emision || ""],
+        ["", ""],
+        ["TEMARIO / CONTENIDO", ""],
+      ];
+
+      // Agregar temario
+      if (formData.contenido && formData.contenido.length > 0) {
+        formData.contenido.forEach((tema, idx) => {
+          data.push([`Tema ${idx + 1}`, tema]);
+        });
+      } else {
+        data.push(["No especificado", ""]);
+      }
+
+      data.push(["", ""]);
+      data.push(["LISTA DE PARTICIPANTES", ""]);
+      data.push(["", ""]);
+      data.push(["Nombre Completo", "Cédula", "Libro", "Folio", "Renglón", "Código de Verificación"]);
+
+      // Agregar participantes
+      participantesConDatos.forEach((p) => {
+        data.push([
+          p.name,
+          p.cedula,
+          p.libro || "",
+          p.folio || "",
+          p.reglon || "",
+          p.codigo || "No generado",
+        ]);
+      });
+
+      const ws = XLSX.utils.aoa_to_sheet(data);
+      XLSX.utils.book_append_sheet(wb, ws, "Planilla");
+
+      const fileName = `planilla_participantes_${(formData.nombre_solicitud || "evento").replace(/\s+/g, "_")}.xlsx`;
+      XLSX.writeFile(wb, fileName);
+    } catch (error) {
+      console.error("Error al exportar Excel:", error);
+      setToast("Error al exportar la planilla en Excel");
+    }
+  };
+
+  const handleDownloadExcelOnly = () => {
+    setShowErrors(true);
+
+    if (!formData.nombre_solicitud || formData.nombre_solicitud.trim() === "") {
+      setToast("El nombre del curso/taller es requerido");
+      return;
+    }
+
+    if (!formData.duracion || formData.duracion.trim() === "") {
+      setToast("La duración es requerida");
+      return;
+    }
+
+    const participantesValidos = participantes.filter(
+      (p) =>
+        p.name && p.name.trim() !== "" && p.cedula && p.cedula.trim() !== "",
+    );
+    if (participantesValidos.length === 0) {
+      setToast("Agregue al menos un participante con nombre y cédula");
+      return;
+    }
+
+    setShowErrors(false);
+
+    // Generar códigos/tokens básicos para el Excel
+    const participantesConCodigos = participantesValidos.map((p) => {
+      const uniqueId = `CERT-${p.cedula}-${Date.now()}`;
+      return { ...p, codigo: uniqueId };
+    });
+
+    exportToExcel(participantesConCodigos);
   };
 
   return (
@@ -463,34 +559,74 @@ export const CrearCertificado = () => {
               </div>
 
               {/* Footer del Formulario */}
-              <div className="pt-8 w-full">
-                <button
-                  type="button"
-                  onClick={handleGeneratePDFs}
-                  className="group relative flex justify-center items-center bg-blue-600 hover:bg-blue-700 px-8 py-4 rounded-2xl w-full font-bold text-white text-lg transition-all transform active:scale-[0.98] overflow-hidden shadow-lg shadow-blue-500/30"
-                >
-                  <div className="top-0 left-0 absolute bg-gradient-to-r from-white/0 via-white/10 to-white/0 w-full h-full -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
-                  <span className="flex items-center gap-2">
-                    Descargar Certificados en PDF
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="w-5 h-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
-                      />
-                    </svg>
-                  </span>
-                </button>
+              <div className="pt-8 w-full space-y-4">
+                <div className="flex items-center gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                  <input
+                    id="download-excel-toggle"
+                    type="checkbox"
+                    checked={downloadExcelAlso}
+                    onChange={(e) => setDownloadExcelAlso(e.target.checked)}
+                    className="w-5 h-5 text-emerald-600 border-slate-300 rounded focus:ring-emerald-500 cursor-pointer"
+                  />
+                  <label htmlFor="download-excel-toggle" className="text-slate-700 text-sm font-semibold cursor-pointer select-none">
+                    Descargar planilla en Excel al generar PDFs
+                  </label>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <button
+                    type="button"
+                    onClick={handleGeneratePDFs}
+                    className="group relative flex justify-center items-center bg-blue-600 hover:bg-blue-700 px-6 py-4 rounded-2xl font-bold text-white text-base sm:text-lg transition-all transform active:scale-[0.98] overflow-hidden shadow-lg shadow-blue-500/30"
+                  >
+                    <div className="top-0 left-0 absolute bg-gradient-to-r from-white/0 via-white/10 to-white/0 w-full h-full -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                    <span className="flex items-center gap-2">
+                      Descargar PDFs
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-5 h-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                        />
+                      </svg>
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleDownloadExcelOnly}
+                    className="group relative flex justify-center items-center bg-emerald-600 hover:bg-emerald-700 px-6 py-4 rounded-2xl font-bold text-white text-base sm:text-lg transition-all transform active:scale-[0.98] overflow-hidden shadow-lg shadow-emerald-500/30"
+                  >
+                    <div className="top-0 left-0 absolute bg-gradient-to-r from-white/0 via-white/10 to-white/0 w-full h-full -translate-x-full group-hover:translate-x-full transition-transform duration-1000"></div>
+                    <span className="flex items-center gap-2">
+                      Descargar Excel
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="w-5 h-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                        />
+                      </svg>
+                    </span>
+                  </button>
+                </div>
+
                 <p className="mt-4 text-center text-slate-400 text-xs">
-                  Se generará un archivo PDF individual con código QR verificado
-                  para cada participante.
+                  Se generará un archivo PDF individual con código QR verificado para cada participante, y/o la planilla consolidada en Excel.
                 </p>
               </div>
             </form>

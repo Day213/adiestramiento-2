@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import * as XLSX from "xlsx";
 
 
 export const PaticipantesSection = ({ participantes, setParticipantes, showErrors }) => {
@@ -33,28 +34,39 @@ export const PaticipantesSection = ({ participantes, setParticipantes, showError
   };
 
   const handleDownloadTemplate = () => {
-    const headers = ["Nombre Completo", "Cédula", "Libro", "Folio", "Reglón"];
-    const rows = [
-      ["Juan Pérez", "V-12345678", "5", "12", "34"],
-      ["María Gómez", "E-87654321", "5", "12", "35"]
-    ];
+    const headers = [["Nombre Completo", "Cédula", "Libro", "Folio", "Reglón"]];
     
-    // Join columns by comma and rows by newline
-    const csvContent = [
-      headers.join(","),
-      ...rows.map(row => row.map(val => `"${val.replace(/"/g, '""')}"`).join(","))
-    ].join("\n");
+    // Filtrar participantes con datos ingresados
+    const participantesValidos = participantes.filter(
+      (p) =>
+        (p.name && p.name.trim() !== "") || (p.cedula && p.cedula.trim() !== "")
+    );
 
-    // Add UTF-8 BOM so Excel opens it with correct character decoding
-    const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.setAttribute("href", url);
-    link.setAttribute("download", "plantilla_participantes.csv");
-    link.style.visibility = "hidden";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    let rows = [];
+    if (participantesValidos.length > 0) {
+      rows = participantesValidos.map((p) => [
+        p.name || "",
+        p.cedula || "",
+        p.libro || "",
+        p.folio || "",
+        p.reglon || "",
+      ]);
+    } else {
+      rows = [
+        ["Juan Pérez", "V-12345678", "5", "12", "34"],
+        ["María Gómez", "E-87654321", "5", "12", "35"]
+      ];
+    }
+    
+    try {
+      const wb = XLSX.utils.book_new();
+      const ws = XLSX.utils.aoa_to_sheet(headers.concat(rows));
+      XLSX.utils.book_append_sheet(wb, ws, "Plantilla");
+      XLSX.writeFile(wb, "plantilla_participantes.xlsx");
+    } catch (error) {
+      console.error("Error al generar la plantilla:", error);
+      alert("No se pudo descargar la plantilla");
+    }
   };
 
   const handleImportClick = () => {
@@ -67,80 +79,92 @@ export const PaticipantesSection = ({ participantes, setParticipantes, showError
     const file = e.target.files[0];
     if (!file) return;
 
-    if (!file.name.endsWith(".csv")) {
-      alert("Por favor, seleccione un archivo con formato .csv");
+    const fileName = file.name.toLowerCase();
+    const isExcel = fileName.endsWith(".xlsx") || fileName.endsWith(".xls");
+    const isCsv = fileName.endsWith(".csv");
+
+    if (!isExcel && !isCsv) {
+      alert("Por favor, seleccione un archivo con formato .xlsx, .xls o .csv");
       e.target.value = "";
       return;
     }
 
     const reader = new FileReader();
     reader.onload = (event) => {
-      const text = event.target.result;
-      const lines = text.split(/\r?\n/);
-      if (lines.length < 2) {
-        alert("El archivo CSV está vacío o no tiene el formato correcto.");
-        return;
-      }
-
-      // Extract headers from the first line
-      const rawHeaders = lines[0].split(",");
-      const headers = rawHeaders.map(h => {
-        let cleaned = h.trim().replace(/^["']|["']$/g, "").trim();
-        // Remove accents and convert to lowercase for flexible matching
-        return cleaned.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-      });
-
-      const nameIndex = headers.findIndex(h => h.includes("nombre"));
-      const cedulaIndex = headers.findIndex(h => h.includes("cedula"));
-      const libroIndex = headers.findIndex(h => h.includes("libro"));
-      const folioIndex = headers.findIndex(h => h.includes("folio"));
-      const reglonIndex = headers.findIndex(h => h.includes("reglon") || h.includes("renglon"));
-
-      if (nameIndex === -1 || cedulaIndex === -1) {
-        alert("El archivo CSV debe contener al menos las columnas 'Nombre Completo' y 'Cédula'.");
-        return;
-      }
-
-      const newParticipants = [];
-
-      for (let i = 1; i < lines.length; i++) {
-        const line = lines[i].trim();
-        if (!line) continue;
-
-        // Split by comma considering quotes
-        const cols = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(col => 
-          col.trim().replace(/^["']|["']$/g, "").trim()
-        );
-
-        if (cols.length === 0 || (cols.length === 1 && cols[0] === "")) continue;
-
-        const name = nameIndex !== -1 && cols[nameIndex] ? cols[nameIndex] : "";
-        const cedula = cedulaIndex !== -1 && cols[cedulaIndex] ? cols[cedulaIndex] : "";
-        const libro = libroIndex !== -1 && cols[libroIndex] ? cols[libroIndex] : "";
-        const folio = folioIndex !== -1 && cols[folioIndex] ? cols[folioIndex] : "";
-        const reglon = reglonIndex !== -1 && cols[reglonIndex] ? cols[reglonIndex] : "";
-
-        if (name || cedula) {
-          newParticipants.push({ name, cedula, libro, folio, reglon });
+      try {
+        const data = new Uint8Array(event.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+        
+        // Obtener la primera hoja de trabajo
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        
+        // Convertir la hoja a formato JSON (matriz de matrices)
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        
+        if (jsonData.length < 2) {
+          alert("El archivo está vacío o no tiene el formato correcto.");
+          return;
         }
-      }
 
-      if (newParticipants.length === 0) {
-        alert("No se encontraron registros de participantes válidos en el archivo.");
-        return;
-      }
+        // Buscar encabezados en la primera fila
+        const rawHeaders = jsonData[0];
+        const headers = rawHeaders.map(h => {
+          if (h === undefined || h === null) return "";
+          let cleaned = String(h).trim().replace(/^["']|["']$/g, "").trim();
+          return cleaned.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        });
 
-      setParticipantes(newParticipants);
-      setCurrentPage(1);
-      alert(`Se importaron exitosamente ${newParticipants.length} participantes.`);
-      e.target.value = "";
+        const nameIndex = headers.findIndex(h => h.includes("nombre"));
+        const cedulaIndex = headers.findIndex(h => h.includes("cedula"));
+        const libroIndex = headers.findIndex(h => h.includes("libro"));
+        const folioIndex = headers.findIndex(h => h.includes("folio"));
+        const reglonIndex = headers.findIndex(h => h.includes("reglon") || h.includes("renglon"));
+
+        if (nameIndex === -1 || cedulaIndex === -1) {
+          alert("El archivo debe contener al menos las columnas 'Nombre Completo' y 'Cédula'.");
+          return;
+        }
+
+        const newParticipants = [];
+
+        for (let i = 1; i < jsonData.length; i++) {
+          const row = jsonData[i];
+          if (!row || row.length === 0) continue;
+
+          const name = nameIndex !== -1 && row[nameIndex] !== undefined ? String(row[nameIndex]).trim() : "";
+          const cedula = cedulaIndex !== -1 && row[cedulaIndex] !== undefined ? String(row[cedulaIndex]).trim() : "";
+          const libro = libroIndex !== -1 && row[libroIndex] !== undefined ? String(row[libroIndex]).trim() : "";
+          const folio = folioIndex !== -1 && row[folioIndex] !== undefined ? String(row[folioIndex]).trim() : "";
+          const reglon = reglonIndex !== -1 && row[reglonIndex] !== undefined ? String(row[reglonIndex]).trim() : "";
+
+          if (name || cedula) {
+            newParticipants.push({ name, cedula, libro, folio, reglon });
+          }
+        }
+
+        if (newParticipants.length === 0) {
+          alert("No se encontraron registros de participantes válidos en el archivo.");
+          return;
+        }
+
+        setParticipantes(newParticipants);
+        setCurrentPage(1);
+        alert(`Se importaron exitosamente ${newParticipants.length} participantes.`);
+      } catch (err) {
+        console.error("Error al procesar el archivo:", err);
+        alert("Ocurrió un error al leer y procesar el archivo.");
+      } finally {
+        e.target.value = "";
+      }
     };
 
     reader.onerror = () => {
       alert("Ocurrió un error al leer el archivo.");
+      e.target.value = "";
     };
 
-    reader.readAsText(file, "UTF-8");
+    reader.readAsArrayBuffer(file);
   };
 
   const hasParticipantsData = participantes.length > 1 || 
@@ -168,14 +192,14 @@ export const PaticipantesSection = ({ participantes, setParticipantes, showError
             type="file"
             ref={fileInputRef}
             onChange={handleFileUpload}
-            accept=".csv"
+            accept=".xlsx, .xls, .csv"
             className="hidden"
           />
           <button
             type="button"
             onClick={handleDownloadTemplate}
             className="flex items-center gap-1.5 sm:gap-2 bg-slate-600 hover:bg-slate-700 shadow-slate-500/10 shadow-md px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl font-bold text-white text-xs sm:text-sm transition-all transform active:scale-95"
-            title="Descargar plantilla de Excel (CSV) para llenado masivo"
+            title="Descargar plantilla de Excel (.xlsx) para llenado masivo"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -186,12 +210,12 @@ export const PaticipantesSection = ({ participantes, setParticipantes, showError
             type="button"
             onClick={handleImportClick}
             className="flex items-center gap-1.5 sm:gap-2 bg-blue-600 hover:bg-blue-700 shadow-blue-500/10 shadow-md px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl font-bold text-white text-xs sm:text-sm transition-all transform active:scale-95"
-            title="Importar participantes desde un archivo CSV"
+            title="Importar participantes desde un archivo Excel o CSV"
           >
             <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a2 2 0 002 2h12a2 2 0 002-2v-1m-5-4l3-3m0 0l3 3m-3-3v12" />
             </svg>
-            Cargar CSV
+            Cargar Lista
           </button>
           {hasParticipantsData && (
             <button
