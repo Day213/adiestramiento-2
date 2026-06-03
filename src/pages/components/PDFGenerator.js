@@ -119,7 +119,7 @@ export const generatePDFsForParticipants = async (formData, onProgress) => {
     doc.text("_______________________", 120, 152);
     doc.setFontSize(12);
     doc.setFont(undefined, "bold");
-    doc.text("Licdo. José Ramírez", 128, 158);
+    doc.text("MSc. José Ramírez", 128, 158);
     doc.setFontSize(10);
     doc.setFont(undefined, "normal");
     doc.text("Vicerrector Administrativo UNEFM", 148, 162, {
@@ -168,28 +168,20 @@ export const generatePDFsForParticipants = async (formData, onProgress) => {
       if (!baseUrl.endsWith('/')) baseUrl += '/';
       const verificationUrl = `${baseUrl}validar?token=${participant.token}`;
 
-      doc.setFontSize(10);
-      doc.setFont(undefined, "bold");
-      doc.setTextColor(0, 100, 200);
-      doc.textWithLink('Verificar documento aquí', 20, 15, { url: verificationUrl });
-      doc.setTextColor(0, 0, 0);
 
-      doc.setFontSize(7);
-      doc.setFont(undefined, "normal");
-      doc.text(`Token: ${participant.token}`, 20, 25, { maxWidth: 180 });
 
       doc.addImage(participant.qr, "PNG", 225, 10, 50, 50);
     }
 
     doc.setFontSize(17);
     doc.setFont(undefined, "bold");
-    doc.text("CONTENIDO", 20, 55);
+    doc.text("CONTENIDO", 20, 20);
 
     // Agregar lista con el contenido del programa
     doc.setFontSize(15);
     doc.setFont(undefined, "normal");
     doc.setLineHeightFactor(1.5); // Establece un interlineado mayor
-    let y = 65;
+    let y = 30;
     formData.contenido.forEach((item, index) => {
       doc.text(`${index + 1}. ${item}`, 20, y, {
         bullet: {

@@ -25,6 +25,7 @@ export const CrearCertificado = () => {
   const [downloadExcelAlso, setDownloadExcelAlso] = useState(true);
 
   useEffect(() => {
+    console.log("🔥 [CAVEMAN-ULTRA] Toast effect triggered. Current toast state:", toast);
     if (toast) {
       const timer = setTimeout(() => setToast(null), 4000);
       return () => clearTimeout(timer);
@@ -45,6 +46,7 @@ export const CrearCertificado = () => {
   });
 
   useEffect(() => {
+    console.log("🔥 [CAVEMAN-ULTRA] Syncing participants with formData. New participantes list:", participantes);
     setFormData((prevData) => ({
       ...prevData,
       participante: participantes,
@@ -52,10 +54,12 @@ export const CrearCertificado = () => {
   }, [participantes]);
 
   const handleSubmit = async (e) => {
+    console.log("🔥 [CAVEMAN-ULTRA] handleSubmit triggered with event:", e);
     e.preventDefault();
   };
 
   const handleDuracionChange = (value, type) => {
+    console.log("🔥 [CAVEMAN-ULTRA] handleDuracionChange input received. value:", value, "type:", type);
     // Validar que no sea negativo ni excesivamente grande
     const numValue = parseInt(value);
     if (value !== "" && (numValue < 1 || numValue > 999)) return;
@@ -75,6 +79,7 @@ export const CrearCertificado = () => {
   };
 
   const handleGeneratePDFs = async () => {
+    console.log("🔥 [CAVEMAN-ULTRA] handleGeneratePDFs button clicked! Preparing to process certificates.", { formData, participantes });
     setShowErrors(true);
 
     if (!formData.nombre_solicitud || formData.nombre_solicitud.trim() === "") {
@@ -125,6 +130,7 @@ export const CrearCertificado = () => {
     try {
       const participantesConQR = await Promise.all(
         participantesValidos.map(async (p) => {
+          console.log("🔥 [CAVEMAN-ULTRA] Generating JWT token and QR for participant:", p.name, "Cedula:", p.cedula);
           const uniqueId = `CERT-${p.cedula}-${Date.now()}`;
           const secret = new TextEncoder().encode(
             import.meta.env.VITE_CERT_SECRET,
@@ -169,6 +175,7 @@ export const CrearCertificado = () => {
   };
 
   const exportToExcel = (participantesConDatos) => {
+    console.log("🔥 [CAVEMAN-ULTRA] exportToExcel called. Processing dataset size:", participantesConDatos.length);
     try {
       const wb = XLSX.utils.book_new();
 
@@ -226,6 +233,7 @@ export const CrearCertificado = () => {
   };
 
   const handleDownloadExcelOnly = () => {
+    console.log("🔥 [CAVEMAN-ULTRA] handleDownloadExcelOnly button clicked. Form State:", formData);
     setShowErrors(true);
 
     if (!formData.nombre_solicitud || formData.nombre_solicitud.trim() === "") {
