@@ -142,7 +142,7 @@ export const CrearCertificado = () => {
             duracion: formData.duracion,
             tipo_solicitud: formData.tipo_solicitud,
             modalidad: formData.modalidad,
-            rol: p.rol || formData.rol,
+            rol: p.rol,
             contenido: formData.contenido,
             fecha: new Date().toISOString(),
           })
@@ -185,7 +185,6 @@ export const CrearCertificado = () => {
         ["Nombre del Evento", formData.nombre_solicitud || ""],
         ["Tipo de Evento", formData.tipo_solicitud || ""],
         ["Modalidad", formData.modalidad || ""],
-        ["Rol", formData.rol || ""],
         ["Duración", formData.duracion || ""],
         ["Instalaciones", formData.instalaciones || ""],
         ["Fecha Inicial", formData.fecha_inicial || ""],
@@ -213,7 +212,7 @@ export const CrearCertificado = () => {
         data.push([
           p.name,
           p.cedula,
-          p.rol || formData.rol,
+          p.rol || "participante",
           p.libro || "",
           p.folio || "",
           p.reglon || "",
@@ -391,26 +390,6 @@ export const CrearCertificado = () => {
                       <option value="presencial">Presencial</option>
                       <option value="virtual">Virtual</option>
                       <option value="semipresencial">Semipresencial</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label
-                      className="block mb-1.5 font-semibold text-slate-700 text-sm"
-                      htmlFor="rol"
-                    >
-                      Rol
-                    </label>
-                    <select
-                      id="rol"
-                      value={formData.rol}
-                      onChange={(e) =>
-                        setFormData({ ...formData, rol: e.target.value })
-                      }
-                      className="bg-blue-50 px-4 py-2.5 border-2 border-blue-200 focus:border-blue-500 rounded-xl focus:ring-4 focus:ring-blue-500/10 w-full text-slate-900 transition-all outline-none font-semibold cursor-pointer"
-                    >
-                      <option value="participante">Participante</option>
-                      <option value="facilitador">Facilitador</option>
                     </select>
                   </div>
 
