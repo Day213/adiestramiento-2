@@ -121,50 +121,45 @@ export const generatePDFsForParticipants = async (formData, onProgress) => {
     const nameY = lineY + 7;
     const titleY = nameY + 5;
 
-    const sigY = 130;
-    const sigH = 17;
-    const sigW = 32;
-    const lineY = sigY + sigH + 2;
-    const nameY = lineY + 7;
-    const titleY = nameY + 5;
+
 
     // MSc. José Ramírez — Vicerrector Administrativo (jerarquía más alta)
-    doc.addImage(JoseFirma, "PNG", 85 - sigW/2, sigY, sigW, sigH);
+    doc.addImage(JoseFirma, "PNG", 45 - sigW/2, sigY, sigW, sigH);
     doc.setFontSize(10);
     doc.setFont(undefined, "normal");
-    doc.text("_______________________", 85, lineY, { align: "center" });
+    doc.text("_______________________", 45, lineY, { align: "center" });
     doc.setFontSize(11);
     doc.setFont(undefined, "bold");
-    doc.text("MSc. José Ramírez", 85, nameY, { align: "center" });
+    doc.text("MSc. José Ramírez", 45, nameY, { align: "center" });
     doc.setFontSize(8);
     doc.setFont(undefined, "normal");
-    doc.text("Vicerrector Administrativo UNEFM", 85, titleY, { align: "center" });
+    doc.text("Vicerrector Administrativo UNEFM", 45, titleY, { align: "center" });
 
     // Dra. Natali Galicia — Directora de Recursos Humanos
-    doc.addImage(NataliFirma, "PNG", 167 - sigW/2, sigY, sigW, sigH);
+    doc.addImage(NataliFirma, "PNG", 148.5 - sigW/2, sigY, sigW, sigH);
     doc.setFontSize(10);
     doc.setFont(undefined, "normal");
-    doc.text("_________________________", 167, lineY, { align: "center" });
+    doc.text("_________________________", 148.5, lineY, { align: "center" });
     doc.setFontSize(11);
     doc.setFont(undefined, "bold");
-    doc.text("Dra. Natali Galicia", 167, nameY, { align: "center" });
+    doc.text("Dra. Natali Galicia", 148.5, nameY, { align: "center" });
     doc.setFontSize(8);
     doc.setFont(undefined, "normal");
-    doc.text("Directora de Recursos Humanos", 167, titleY, {
+    doc.text("Directora de Recursos Humanos", 148.5, titleY, {
       align: "center",
     });
 
     // Ing. Eydis Martinez — Jefa Dpto. Adiestramiento (jerarquía más baja)
-    doc.addImage(eydisFirma, "JPEG", 250 - sigW/2, sigY, sigW, sigH);
+    doc.addImage(eydisFirma, "JPEG", 252 - sigW/2, sigY, sigW, sigH);
     doc.setFontSize(10);
     doc.setFont(undefined, "normal");
-    doc.text("_________________________", 250, lineY, { align: "center" });
+    doc.text("_________________________", 252, lineY, { align: "center" });
     doc.setFontSize(11);
     doc.setFont(undefined, "bold");
-    doc.text("Ing. Eydis Martinez", 250, nameY, { align: "center" });
+    doc.text("Ing. Eydis Martinez", 252, nameY, { align: "center" });
     doc.setFontSize(8);
     doc.setFont(undefined, "normal");
-    doc.text("Jefe Dpto. Adiestramiento y Desarrollo", 250, titleY, {
+    doc.text("Jefe Dpto. Adiestramiento y Desarrollo", 252, titleY, {
       align: "center",
     });
 
