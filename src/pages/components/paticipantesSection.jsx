@@ -272,8 +272,8 @@ export const PaticipantesSection = ({ participantes, setParticipantes, showError
                       </button>
                     </div>
 
-                    <div className="gap-6 grid grid-cols-1 md:grid-cols-12 items-end">
-                      <div className="md:col-span-5">
+                    <div className="gap-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 items-end">
+                      <div className="sm:col-span-2 lg:col-span-5">
                         <label className="block mb-1.5 font-semibold text-slate-600 text-xs uppercase" htmlFor={`name-${globalIndex}`}>
                           Nombre Completo
                         </label>
@@ -295,7 +295,7 @@ export const PaticipantesSection = ({ participantes, setParticipantes, showError
                         />
                       </div>
 
-                      <div className="md:col-span-3">
+                      <div className="sm:col-span-1 lg:col-span-3">
                         <label className="block mb-1.5 font-semibold text-slate-600 text-xs uppercase" htmlFor={`cedula-${globalIndex}`}>
                           Cédula
                         </label>
@@ -317,7 +317,7 @@ export const PaticipantesSection = ({ participantes, setParticipantes, showError
                         />
                       </div>
 
-                      <div className="md:col-span-2">
+                      <div className="sm:col-span-1 lg:col-span-2">
                         <label className="block mb-1.5 font-semibold text-slate-600 text-xs uppercase" htmlFor={`rol-${globalIndex}`}>
                           Rol
                         </label>
@@ -336,7 +336,7 @@ export const PaticipantesSection = ({ participantes, setParticipantes, showError
                         </select>
                       </div>
 
-                      <div className="md:col-span-2 gap-2 grid grid-cols-3">
+                      <div className="sm:col-span-2 lg:col-span-2 gap-2 grid grid-cols-3">
                         <div>
                           <label className="block mb-1.5 font-semibold text-slate-600 text-[10px] uppercase truncate" htmlFor={`libro-${globalIndex}`}>
                             Libro
