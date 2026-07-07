@@ -66,7 +66,6 @@ export const CrearCertificado = () => {
 
     let finalType = type;
     if (numValue === 1) {
-      if (type === "horas") finalType = "hora";
       if (type === "dias") finalType = "dia";
       if (type === "meses") finalType = "mes";
       if (type === "años") finalType = "año";
