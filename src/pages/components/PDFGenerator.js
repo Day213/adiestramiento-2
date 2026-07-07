@@ -117,7 +117,7 @@ export const generatePDFsForParticipants = async (formData, onProgress) => {
     const sigY = 130;
     const sigH = 17;
     const sigW = 32;
-    const lineY = sigY + sigH + 6;
+    const lineY = sigY + sigH + 2;
     const nameY = lineY + 7;
     const titleY = nameY + 5;
 
