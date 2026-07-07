@@ -114,50 +114,57 @@ export const generatePDFsForParticipants = async (formData, onProgress) => {
       { align: "left", maxWidth: 250 }
     );
 
-    doc.setFont(undefined, "normal");
-    doc.addImage(JoseFirma, "PNG", 125, 130, 45, 25);
-    doc.text("_______________________", 120, 152);
-    doc.setFontSize(12);
-    doc.setFont(undefined, "bold");
-    doc.text("MSc. José Ramírez", 128, 158);
+    const sigY = 132;
+    const sigH = 18;
+    const sigW = 35;
+    const lineY = sigY + sigH + 6;
+    const nameY = lineY + 7;
+    const titleY = nameY + 5;
+
+    // MSc. José Ramírez — Vicerrector Administrativo (jerarquía más alta)
+    doc.addImage(JoseFirma, "PNG", 40, sigY, sigW, sigH);
     doc.setFontSize(10);
     doc.setFont(undefined, "normal");
-    doc.text("Vicerrector Administrativo UNEFM", 148, 162, {
+    doc.text("_______________________", 40, lineY);
+    doc.setFontSize(11);
+    doc.setFont(undefined, "bold");
+    doc.text("MSc. José Ramírez", 43, nameY);
+    doc.setFontSize(8);
+    doc.setFont(undefined, "normal");
+    doc.text("Vicerrector Administrativo UNEFM", 55, titleY, {
+      align: "center",
+      maxWidth: 45,
+    });
+
+    // Dra. Natali Galicia — Directora de Recursos Humanos
+    doc.addImage(NataliFirma, "PNG", 132, sigY, sigW, sigH);
+    doc.setFontSize(10);
+    doc.setFont(undefined, "normal");
+    doc.text("_________________________", 133, lineY);
+    doc.setFontSize(11);
+    doc.setFont(undefined, "bold");
+    doc.text("Dra. Natali Galicia", 134, nameY);
+    doc.setFontSize(8);
+    doc.setFont(undefined, "normal");
+    doc.text("Directora de Recursos Humanos", 153, titleY, {
+      align: "center",
+      maxWidth: 45,
+    });
+
+    // Ing. Eydis Martinez — Jefa Dpto. Adiestramiento (jerarquía más baja)
+    doc.addImage(eydisFirma, "JPEG", 222, sigY, sigW, sigH);
+    doc.setFontSize(10);
+    doc.setFont(undefined, "normal");
+    doc.text("_________________________", 223, lineY);
+    doc.setFontSize(11);
+    doc.setFont(undefined, "bold");
+    doc.text("Ing. Eydis Martinez", 225, nameY);
+    doc.setFontSize(8);
+    doc.setFont(undefined, "normal");
+    doc.text("Jefe Dpto. Adiestramiento y Desarrollo", 248, titleY, {
       align: "center",
       maxWidth: 50,
     });
-
-    doc.setFont(undefined, "normal");
-    doc.addImage(NataliFirma, "PNG", 215, 130, 45, 25);
-    doc.text("_________________________", 216, 152);
-    doc.setFontSize(12);
-    doc.setFont(undefined, "bold");
-    doc.text("Dra. Natali Galicia", 222, 160);
-    doc.setFontSize(10);
-    doc.setFont(undefined, "normal");
-    doc.text("Directora de Recursos Humanos", 240, 165, {
-      align: "center",
-      maxWidth: 50,
-    });
-
-    doc.setFontSize(12);
-    doc.addImage(eydisFirma, "JPEG", 30, 155 - 20, 40, 20);
-    doc.text("_________________________", 20, 171 - 20);
-    doc.setFontSize(12);
-    doc.setFont(undefined, "bold");
-    doc.text("Ing. Eydis Martinez", 30, 178 - 20);
-
-    doc.setFontSize(10);
-    doc.setFont(undefined, "normal");
-    doc.text(
-      "Jefe del departamento de Adiestramiento y Desarrollo",
-      50,
-      183 - 20,
-      {
-        align: "center",
-        maxWidth: 50,
-      }
-    );
 
     // Agregar una nueva página para los detalles del programa
     doc.addPage();
