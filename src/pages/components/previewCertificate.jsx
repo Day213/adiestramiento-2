@@ -12,6 +12,7 @@ export const PreviewCertificate = ({ formData, participantes }) => {
       : {
           name: "JUAN PÉREZ",
           cedula: "V-12.345.678",
+          rol: "participante",
           libro: "5",
           folio: "12",
           reglon: "34",
@@ -148,7 +149,7 @@ export const PreviewCertificate = ({ formData, participantes }) => {
               <div className="text-slate-600 text-left leading-relaxed w-[92%] mx-auto bg-slate-50/40 p-1.5 rounded-lg border border-slate-100/50 mb-1">
                 En calidad de{" "}
                 <span className="font-bold text-slate-800 uppercase">
-                  {formData.rol || "participante"}
+                  {activeParticipant.rol || formData.rol || "participante"}
                 </span>{" "}
                 en el{" "}
                 <span className="font-bold text-slate-800 uppercase">

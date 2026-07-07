@@ -101,7 +101,7 @@ export const generatePDFsForParticipants = async (formData, onProgress) => {
     doc.setFontSize(12);
     doc.setFont(undefined, "normal");
     doc.text(
-      `En calidad de ${(formData.rol || 'participante').toUpperCase()} en el ${formData.tipo_solicitud.toUpperCase()}: ${formData.nombre_solicitud
+      `En calidad de ${(participant.rol || 'participante').toUpperCase()} en el ${formData.tipo_solicitud.toUpperCase()}: ${formData.nombre_solicitud
       } (MODALIDAD ${formData.modalidad.toUpperCase()}). Evento realizado en ${formData.instalaciones
       } el día ${parseLocalDate(formData.dia_emision).toLocaleString("es-ES", {
         day: "2-digit",
@@ -114,22 +114,22 @@ export const generatePDFsForParticipants = async (formData, onProgress) => {
       { align: "left", maxWidth: 250 }
     );
 
-    const sigY = 132;
-    const sigH = 18;
-    const sigW = 35;
+    const sigY = 136;
+    const sigH = 13;
+    const sigW = 26;
     const lineY = sigY + sigH + 6;
     const nameY = lineY + 7;
     const titleY = nameY + 5;
 
     // MSc. José Ramírez — Vicerrector Administrativo (jerarquía más alta)
     doc.addImage(JoseFirma, "PNG", 40, sigY, sigW, sigH);
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     doc.setFont(undefined, "normal");
     doc.text("_______________________", 40, lineY);
-    doc.setFontSize(11);
+    doc.setFontSize(10);
     doc.setFont(undefined, "bold");
     doc.text("MSc. José Ramírez", 43, nameY);
-    doc.setFontSize(8);
+    doc.setFontSize(7);
     doc.setFont(undefined, "normal");
     doc.text("Vicerrector Administrativo UNEFM", 55, titleY, {
       align: "center",
@@ -138,13 +138,13 @@ export const generatePDFsForParticipants = async (formData, onProgress) => {
 
     // Dra. Natali Galicia — Directora de Recursos Humanos
     doc.addImage(NataliFirma, "PNG", 132, sigY, sigW, sigH);
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     doc.setFont(undefined, "normal");
     doc.text("_________________________", 133, lineY);
-    doc.setFontSize(11);
+    doc.setFontSize(10);
     doc.setFont(undefined, "bold");
     doc.text("Dra. Natali Galicia", 134, nameY);
-    doc.setFontSize(8);
+    doc.setFontSize(7);
     doc.setFont(undefined, "normal");
     doc.text("Directora de Recursos Humanos", 153, titleY, {
       align: "center",
@@ -153,13 +153,13 @@ export const generatePDFsForParticipants = async (formData, onProgress) => {
 
     // Ing. Eydis Martinez — Jefa Dpto. Adiestramiento (jerarquía más baja)
     doc.addImage(eydisFirma, "JPEG", 222, sigY, sigW, sigH);
-    doc.setFontSize(10);
+    doc.setFontSize(9);
     doc.setFont(undefined, "normal");
     doc.text("_________________________", 223, lineY);
-    doc.setFontSize(11);
+    doc.setFontSize(10);
     doc.setFont(undefined, "bold");
     doc.text("Ing. Eydis Martinez", 225, nameY);
-    doc.setFontSize(8);
+    doc.setFontSize(7);
     doc.setFont(undefined, "normal");
     doc.text("Jefe Dpto. Adiestramiento y Desarrollo", 248, titleY, {
       align: "center",

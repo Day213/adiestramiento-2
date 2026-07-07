@@ -10,7 +10,7 @@ export const PaticipantesSection = ({ participantes, setParticipantes, showError
   const handleAddParticipant = () => {
     setParticipantes((prev) => [
       ...prev,
-      { name: "", cedula: "", folio: "", libro: "", reglon: "" },
+      { name: "", cedula: "", rol: "participante", folio: "", libro: "", reglon: "" },
     ]);
     const newTotalPages = Math.ceil((participantes.length + 1) / ITEMS_PER_PAGE);
     setCurrentPage(newTotalPages);
@@ -34,7 +34,7 @@ export const PaticipantesSection = ({ participantes, setParticipantes, showError
   };
 
   const handleDownloadTemplate = () => {
-    const headers = [["Nombre Completo", "Cédula", "Libro", "Folio", "Reglón"]];
+    const headers = [["Nombre Completo", "Cédula", "Rol", "Libro", "Folio", "Reglón"]];
     
     // Filtrar participantes con datos ingresados
     const participantesValidos = participantes.filter(
@@ -47,14 +47,15 @@ export const PaticipantesSection = ({ participantes, setParticipantes, showError
       rows = participantesValidos.map((p) => [
         p.name || "",
         p.cedula || "",
+        p.rol || "participante",
         p.libro || "",
         p.folio || "",
         p.reglon || "",
       ]);
     } else {
       rows = [
-        ["Juan Pérez", "V-12345678", "5", "12", "34"],
-        ["María Gómez", "E-87654321", "5", "12", "35"]
+        ["Juan Pérez", "V-12345678", "participante", "5", "12", "34"],
+        ["María Gómez", "E-87654321", "facilitador", "5", "12", "35"]
       ];
     }
     
@@ -117,6 +118,7 @@ export const PaticipantesSection = ({ participantes, setParticipantes, showError
 
         const nameIndex = headers.findIndex(h => h.includes("nombre"));
         const cedulaIndex = headers.findIndex(h => h.includes("cedula"));
+        const rolIndex = headers.findIndex(h => h.includes("rol"));
         const libroIndex = headers.findIndex(h => h.includes("libro"));
         const folioIndex = headers.findIndex(h => h.includes("folio"));
         const reglonIndex = headers.findIndex(h => h.includes("reglon") || h.includes("renglon"));
@@ -134,12 +136,13 @@ export const PaticipantesSection = ({ participantes, setParticipantes, showError
 
           const name = nameIndex !== -1 && row[nameIndex] !== undefined ? String(row[nameIndex]).trim() : "";
           const cedula = cedulaIndex !== -1 && row[cedulaIndex] !== undefined ? String(row[cedulaIndex]).trim() : "";
+          const rol = rolIndex !== -1 && row[rolIndex] !== undefined ? String(row[rolIndex]).trim() : "participante";
           const libro = libroIndex !== -1 && row[libroIndex] !== undefined ? String(row[libroIndex]).trim() : "";
           const folio = folioIndex !== -1 && row[folioIndex] !== undefined ? String(row[folioIndex]).trim() : "";
           const reglon = reglonIndex !== -1 && row[reglonIndex] !== undefined ? String(row[reglonIndex]).trim() : "";
 
           if (name || cedula) {
-            newParticipants.push({ name, cedula, libro, folio, reglon });
+            newParticipants.push({ name, cedula, rol, libro, folio, reglon });
           }
         }
 
@@ -314,7 +317,26 @@ export const PaticipantesSection = ({ participantes, setParticipantes, showError
                         />
                       </div>
 
-                      <div className="md:col-span-4 gap-2 grid grid-cols-3">
+                      <div className="md:col-span-2">
+                        <label className="block mb-1.5 font-semibold text-slate-600 text-xs uppercase" htmlFor={`rol-${globalIndex}`}>
+                          Rol
+                        </label>
+                        <select
+                          id={`rol-${globalIndex}`}
+                          className="bg-emerald-50 px-2 py-2 border-2 border-emerald-200 focus:border-emerald-600 rounded-xl focus:ring-4 focus:ring-emerald-500/10 w-full text-slate-900 transition-all outline-none text-center font-semibold cursor-pointer"
+                          value={participant.rol || "participante"}
+                          onChange={(e) =>
+                            setParticipantes((prev) =>
+                              prev.map((p, i) => (i === globalIndex ? { ...p, rol: e.target.value } : p))
+                            )
+                          }
+                        >
+                          <option value="participante">Participante</option>
+                          <option value="facilitador">Facilitador</option>
+                        </select>
+                      </div>
+
+                      <div className="md:col-span-2 gap-2 grid grid-cols-3">
                         <div>
                           <label className="block mb-1.5 font-semibold text-slate-600 text-[10px] uppercase truncate" htmlFor={`libro-${globalIndex}`}>
                             Libro

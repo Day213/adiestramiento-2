@@ -17,7 +17,7 @@ export const CrearCertificado = () => {
   });
   const [loading, setLoading] = useState(false);
   const [participantes, setParticipantes] = useState([
-    { name: "", cedula: "", folio: "", libro: "", reglon: "" },
+    { name: "", cedula: "", rol: "participante", folio: "", libro: "", reglon: "" },
   ]);
   const [toast, setToast] = useState(null);
   const [downloadProgress, setDownloadProgress] = useState(null);
@@ -142,7 +142,7 @@ export const CrearCertificado = () => {
             duracion: formData.duracion,
             tipo_solicitud: formData.tipo_solicitud,
             modalidad: formData.modalidad,
-            rol: formData.rol,
+            rol: p.rol || formData.rol,
             contenido: formData.contenido,
             fecha: new Date().toISOString(),
           })
@@ -206,13 +206,14 @@ export const CrearCertificado = () => {
       data.push(["", ""]);
       data.push(["LISTA DE PARTICIPANTES", ""]);
       data.push(["", ""]);
-      data.push(["Nombre Completo", "Cédula", "Libro", "Folio", "Renglón", "Código de Verificación"]);
+      data.push(["Nombre Completo", "Cédula", "Rol", "Libro", "Folio", "Renglón", "Código de Verificación"]);
 
       // Agregar participantes
       participantesConDatos.forEach((p) => {
         data.push([
           p.name,
           p.cedula,
+          p.rol || formData.rol,
           p.libro || "",
           p.folio || "",
           p.reglon || "",
