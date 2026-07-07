@@ -135,12 +135,10 @@ export const generatePDFsForParticipants = async (formData, onProgress) => {
     doc.text("_______________________", 85, lineY, { align: "center" });
     doc.setFontSize(11);
     doc.setFont(undefined, "bold");
-    doc.text("MSc. José Ramírez", 85, nameY, { align: "center" });
+    doc.text("MSc. José Ramírez", 55, nameY);
     doc.setFontSize(8);
     doc.setFont(undefined, "normal");
-    doc.text("Vicerrector Administrativo UNEFM", 85, titleY, {
-      align: "center",
-    });
+    doc.text("Vicerrector Administrativo UNEFM", 55, titleY);
 
     // Dra. Natali Galicia — Directora de Recursos Humanos
     doc.addImage(NataliFirma, "PNG", 167 - sigW/2, sigY, sigW, sigH);
